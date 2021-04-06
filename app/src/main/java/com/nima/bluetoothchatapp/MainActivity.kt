@@ -2,10 +2,12 @@ package com.nima.bluetoothchatapp
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -27,6 +29,17 @@ class MainActivity : AppCompatActivity() {
         if (bluetoothAdapter?.isEnabled == false) {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+        }
+        else queryPairedDevices()
+    }
+
+    private fun queryPairedDevices() {
+        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+        pairedDevices?.forEach { device ->
+            val deviceName = device.name
+            val deviceHardwareAddress = device.address // MAC address
+            Log.d("TAG", "queryPairedDevices: deviceName : $deviceName ," +
+                    " MAC : $deviceHardwareAddress")
         }
     }
 
@@ -55,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         when(requestCode){
             REQUEST_ENABLE_BT ->{
                 when(resultCode){
-                    RESULT_OK -> {}
+                    RESULT_OK -> {queryPairedDevices()}
                     RESULT_CANCELED -> {finish()}
                 }
             }
