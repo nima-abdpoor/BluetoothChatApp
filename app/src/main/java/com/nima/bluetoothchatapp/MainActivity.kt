@@ -3,6 +3,8 @@ package com.nima.bluetoothchatapp
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothServerSocket
+import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,11 +17,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.IOException
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private val PERMISSION_CODE = 100
     private val REQUEST_ENABLE_BT = 101
     private var bluetoothAdapter: BluetoothAdapter? = null
+    private var bluetoothDevice : BluetoothDevice? = null
+    private val str :String = "BLUETOOTH_CHAT_APPLICATION"
+    private val uuid : UUID = UUID.nameUUIDFromBytes(str.toByteArray())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,6 +41,8 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         } else {
             queryPairedDevices()
+            //ConnectThread(bluetoothDevice!!).start()
+            AcceptThread().start()
             discoverDevices()
             enableDiscoverability()
         }
@@ -54,6 +63,7 @@ class MainActivity : AppCompatActivity() {
     private fun queryPairedDevices() {
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
         pairedDevices?.forEach { device ->
+            bluetoothDevice = device
             val deviceName = device.name
             val deviceHardwareAddress = device.address // MAC address
             Log.d("TAG", "queryPairedDevices: deviceName : $deviceName ," +
@@ -110,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                             intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     val deviceName = device?.name
                     val deviceHardwareAddress = device?.address // MAC address
-                    Log.d("TAG", "Discover Devices: deviceName : $deviceName ," +
+                    Log.d("TAG", "Discover_Devices: deviceName : $deviceName ," +
                             " MAC : $deviceHardwareAddress")
                 }
             }
@@ -120,5 +130,74 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(receiver)
+    }
+    private inner class AcceptThread : Thread() {
+        private val mmServerSocket: BluetoothServerSocket? by lazy(LazyThreadSafetyMode.NONE) {
+            bluetoothAdapter?.listenUsingInsecureRfcommWithServiceRecord(
+                getString(R.string.app_name),
+                uuid)
+        }
+
+        override fun run() {
+            // Keep listening until exception occurs or a socket is returned.
+            var shouldLoop = true
+            while (shouldLoop) {
+                val socket: BluetoothSocket? = try {
+                    mmServerSocket?.accept()
+                } catch (e: IOException) {
+                    Log.e("TAG", "Socket's accept() method failed", e)
+                    shouldLoop = false
+                    null
+                }
+                socket?.also {
+                    //manageMyConnectedSocket(it)
+                    mmServerSocket?.close()
+                    shouldLoop = false
+                }
+            }
+        }
+
+        // Closes the connect socket and causes the thread to finish.
+        fun cancel() {
+            try {
+                mmServerSocket?.close()
+            } catch (e: IOException) {
+                Log.e("TAG", "Could not close the connect socket", e)
+            }
+        }
+    }
+    private inner class ConnectThread(device: BluetoothDevice) : Thread() {
+
+        private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
+            device.createRfcommSocketToServiceRecord(uuid)
+        }
+
+        public override fun run() {
+            // Cancel discovery because it otherwise slows down the connection.
+            bluetoothAdapter?.cancelDiscovery()
+            try {
+                mmSocket?.use { socket ->
+                    // Connect to the remote device through the socket. This call blocks
+                    // until it succeeds or throws an exception.
+                    socket.connect()
+                    Log.d("TAG", "Bluetooth_Socket: connected called")
+                    // The connection attempt succeeded. Perform work associated with
+                    // the connection in a separate thread.
+                    //manageMyConnectedSocket(socket)
+                }
+            }catch (e : IOException){
+                Log.d("TAG", "Bluetooth_Socket: exception ${e.message}")
+            }
+
+        }
+
+        // Closes the client socket and causes the thread to finish.
+        fun cancel() {
+            try {
+                mmSocket?.close()
+            } catch (e: IOException) {
+                Log.e("TAG", "Could not close the client socket", e)
+            }
+        }
     }
 }
