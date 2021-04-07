@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.nima.bluetoothchatapp;
+package com.nima.bluetoothchatapp.service;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,6 +26,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+
+import com.nima.bluetoothchatapp.Constants;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,11 +1,9 @@
-package com.nima.bluetoothchatapp
+package com.nima.bluetoothchatapp.ui.activity
 
 import android.Manifest
-import android.app.ActionBar
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -14,9 +12,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
-import java.util.*
+import com.nima.bluetoothchatapp.R
+import com.nima.bluetoothchatapp.service.BluetoothChatService
+import com.nima.bluetoothchatapp.ui.fragment.ChatFragment
 
 class MainActivity : AppCompatActivity() {
     private val PERMISSION_CODE = 100
@@ -24,11 +23,7 @@ class MainActivity : AppCompatActivity() {
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothDevice: BluetoothDevice? = null
     private var mChatService: BluetoothChatService? = null
-    private var mConnectedDeviceName: String? = null
-    private var mOutStringBuffer: StringBuffer? = null
     private val str: String = "BLUETOOTH_CHAT_APPLICATION"
-    private lateinit var myBluetoothService: MyBluetoothService
-    private val uuid: UUID = UUID.nameUUIDFromBytes(str.toByteArray())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

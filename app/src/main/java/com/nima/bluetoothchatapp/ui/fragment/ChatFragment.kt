@@ -1,4 +1,4 @@
-package com.nima.bluetoothchatapp
+package com.nima.bluetoothchatapp.ui.fragment
 
 import android.app.ActionBar
 import android.app.Activity
@@ -12,9 +12,12 @@ import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
-import android.widget.TextView.OnEditorActionListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.nima.bluetoothchatapp.service.BluetoothChatService
+import com.nima.bluetoothchatapp.Constants
+import com.nima.bluetoothchatapp.DeviceListActivity
+import com.nima.bluetoothchatapp.R
 
 class ChatFragment : Fragment() {
     // Layout Views
@@ -131,7 +134,10 @@ class ChatFragment : Fragment() {
         }
 
         // Initialize the BluetoothChatService to perform bluetooth connections
-        mChatService = BluetoothChatService(activity, mHandler)
+        mChatService = BluetoothChatService(
+            activity,
+            mHandler
+        )
 
         // Initialize the buffer for outgoing messages
         mOutStringBuffer = StringBuffer("")
