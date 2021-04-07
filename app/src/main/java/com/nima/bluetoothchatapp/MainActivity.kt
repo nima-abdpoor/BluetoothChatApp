@@ -42,19 +42,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun enableBluetooth() {
-        if (bluetoothAdapter?.isEnabled == false) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
-        } else {
-//            setupChat()
-            queryPairedDevices()
-            //AcceptThread().start()
-            discoverDevices()
-            enableDiscoverability()
-        }
-    }
-
 //    private fun setupChat() {
 //
 //        // Initialize the BluetoothChatService to perform bluetooth connections
@@ -63,12 +50,6 @@ class MainActivity : AppCompatActivity() {
 //        // Initialize the buffer for outgoing messages
 //        mOutStringBuffer = StringBuffer("")
 //    }
-
-    private fun setStatus(subTitle: CharSequence) {
-        val activity: FragmentActivity = this
-        val actionBar: ActionBar = activity.getActionBar() ?: return
-        actionBar.subtitle = subTitle
-    }
 
 
     private fun enableDiscoverability() {
@@ -79,16 +60,12 @@ class MainActivity : AppCompatActivity() {
         startActivity(discoverableIntent)
     }
 
-    private fun discoverDevices() {
-        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-    }
-
     private fun queryPairedDevices() {
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
         pairedDevices?.forEach { device ->
             if (device.address == "38:D4:0B:DA:FF:FF") {
                 bluetoothDevice = device
-                connectDevice(null, true)
+                //connectDevice(null, true)
             }
             val deviceName = device.name
             val deviceHardwareAddress = device.address // MAC address
@@ -131,7 +108,6 @@ class MainActivity : AppCompatActivity() {
                 when (resultCode) {
                     RESULT_OK -> {
                         queryPairedDevices()
-                        discoverDevices()
                     }
                     RESULT_CANCELED -> {
                         finish()
@@ -141,33 +117,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun connectDevice(data: Intent? = null, secure: Boolean) {
-        // Get the device MAC address
-//        val address = data.extras?.getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS)
-//        // Get the BluetoothDevice object
-//        val device: BluetoothDevice = mBluetoothAdapter.getRemoteDevice(address)
-        // Attempt to connect to the device
-        mChatService!!.connect(bluetoothDevice, secure)
-        sendMessage("salam")
-    }
-    private fun sendMessage(message: String) {
-        // Check that we're actually connected before trying anything
-//        if (mChatService!!.state != BluetoothChatService.STATE_CONNECTED) {
-//            Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show()
-//            return
-//        }
-
-        // Check that there's actually something to send
-        if (message.isNotEmpty()) {
-            // Get the message bytes and tell the BluetoothChatService to write
-            val send = message.toByteArray()
-            mChatService!!.write(send)
-            Log.d("TAG", "sendMessage: sent1")
-            // Reset out string buffer to zero and clear the edit text field
-            mOutStringBuffer!!.setLength(0)
-            //mOutEditText.setText(mOutStringBuffer)
-        }
-    }
 
     override fun onResume() {
         super.onResume()
