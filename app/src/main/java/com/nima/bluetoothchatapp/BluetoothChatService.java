@@ -253,6 +253,7 @@ public class BluetoothChatService {
             r = mConnectedThread;
         }
         // Perform the write unsynchronized
+        Log.d("TAG", "sendMessage: sent2");
         r.write(out);
     }
 
@@ -513,6 +514,7 @@ public class BluetoothChatService {
             try {
                 mmOutStream.write(buffer);
 
+                Log.d("TAG", "sendMessage: sent3");
                 // Share the sent message back to the UI Activity
                 mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
                         .sendToTarget();
