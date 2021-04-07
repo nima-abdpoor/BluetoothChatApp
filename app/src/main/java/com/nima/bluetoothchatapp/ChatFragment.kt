@@ -12,7 +12,6 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import android.widget.TextView.OnEditorActionListener
-import androidx.annotation.Nullable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 
@@ -64,7 +63,7 @@ class ChatFragment : Fragment() {
         }
     }
 
-    fun onStart() {
+    override fun onStart() {
         super.onStart()
         // If BT is not on, request that it be enabled.
         // setupChat() will then be called during onActivityResult
@@ -92,7 +91,7 @@ class ChatFragment : Fragment() {
         // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
         if (mChatService != null) {
             // Only if the state is STATE_NONE, do we know that we haven't started already
-            if (mChatService!!.state === BluetoothChatService.STATE_NONE) {
+            if (mChatService!!.state == BluetoothChatService.STATE_NONE) {
                 // Start the Bluetooth chat services
                 mChatService!!.start()
             }
@@ -116,7 +115,7 @@ class ChatFragment : Fragment() {
         Log.d(TAG, "setupChat()")
 
         // Initialize the array adapter for the conversation thread
-        mConversationArrayAdapter = ArrayAdapter(getActivity(), R.layout.message)
+        mConversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
         mConversationView!!.adapter = mConversationArrayAdapter
 
         // Initialize the compose field with a listener for the return key
@@ -124,7 +123,7 @@ class ChatFragment : Fragment() {
 
         // Initialize the send button with a listener that for click events
         mSendButton!!.setOnClickListener { // Send a message using content of the edit text widget
-            val view: View = getView()
+            val view: View? = view
             if (null != view) {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
                 val message = textView.text.toString()
@@ -263,11 +262,11 @@ class ChatFragment : Fragment() {
         when (requestCode) {
             REQUEST_CONNECT_DEVICE_SECURE ->                 // When DeviceListActivity returns with a device to connect
                 if (resultCode == Activity.RESULT_OK) {
-                    connectDevice(data, true)
+                    data?.let { connectDevice(it, true) }
                 }
             REQUEST_CONNECT_DEVICE_INSECURE ->                 // When DeviceListActivity returns with a device to connect
                 if (resultCode == Activity.RESULT_OK) {
-                    connectDevice(data, false)
+                    data?.let { connectDevice(it, false) }
                 }
             REQUEST_ENABLE_BT ->                 // When the request to enable Bluetooth returns
                 if (resultCode == Activity.RESULT_OK) {
@@ -277,10 +276,10 @@ class ChatFragment : Fragment() {
                     // User did not enable Bluetooth or an error occurred
                     Log.d(TAG, "BT not enabled")
                     Toast.makeText(
-                        getActivity(), R.string.bt_not_enabled_leaving,
+                        activity, R.string.bt_not_enabled_leaving,
                         Toast.LENGTH_SHORT
                     ).show()
-                    getActivity().finish()
+                    activity?.finish()
                 }
         }
     }
