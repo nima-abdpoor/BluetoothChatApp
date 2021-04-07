@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/connect_scan"
-        android:icon="@drawable/ic_action_device_access_bluetooth_searching"
+        android:icon="@drawable/ic_bluetooth_dark"
         android:title="@string/connect_device"
         app:showAsAction="ifRoom" />
 

@@ -4,8 +4,6 @@ import android.Manifest
 import android.app.ActionBar
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -36,10 +34,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         checkForPermission()
         setBluetoothAdapter()
-        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        val fragment = ChatFragment()
-        transaction.replace(R.id.sample_content_fragment,fragment)
-        transaction.commit()
+        if (savedInstanceState == null){
+            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+            val fragment = ChatFragment()
+            transaction.replace(R.id.sample_content_fragment,fragment)
+            transaction.commit()
+        }
     }
 
     private fun enableBluetooth() {
@@ -81,7 +81,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun discoverDevices() {
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        registerReceiver(receiver, filter)
     }
 
     private fun queryPairedDevices() {
@@ -142,25 +141,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action: String = intent.action.toString()
-            when (action) {
-                BluetoothDevice.ACTION_FOUND -> {
-                    // Discovery has found a device. Get the BluetoothDevice
-                    // object and its info from the Intent.
-                    val device: BluetoothDevice? =
-                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                    val deviceName = device?.name
-                    val deviceHardwareAddress = device?.address // MAC address
-                    Log.d(
-                        "TAG", "Discover_Devices: deviceName : $deviceName ," +
-                                " MAC : $deviceHardwareAddress"
-                    )
-                }
-            }
-        }
-    }
     private fun connectDevice(data: Intent? = null, secure: Boolean) {
         // Get the device MAC address
 //        val address = data.extras?.getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS)
@@ -189,10 +169,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(receiver)
-    }
     override fun onResume() {
         super.onResume()
 
