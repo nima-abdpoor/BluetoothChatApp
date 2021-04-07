@@ -12,6 +12,8 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothDevice : BluetoothDevice? = null
     private val str :String = "BLUETOOTH_CHAT_APPLICATION"
+    private lateinit var myBluetoothService : MyBluetoothService
     private val uuid : UUID = UUID.nameUUIDFromBytes(str.toByteArray())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +36,17 @@ class MainActivity : AppCompatActivity() {
         checkForPermission()
         setBluetoothAdapter()
         enableBluetooth()
+        val handler = object : Handler() {
+            override fun handleMessage(msg: Message) {
+                val bundle  = msg.data
+                Log.d("TAG", "handleMessage: ${bundle.getString("key")}")
+                if (msg.what == 0 ){
+                    Log.d("TAG", "handleMessage: READ_TIME ${msg.obj}")
+                }
+            }
+        }
+        myBluetoothService =MyBluetoothService(handler)
+
     }
 
     private fun enableBluetooth() {
@@ -41,8 +55,8 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         } else {
             queryPairedDevices()
-            //ConnectThread(bluetoothDevice!!).start()
-            AcceptThread().start()
+            ConnectThread(bluetoothDevice!!).start()
+            //AcceptThread().start()
             discoverDevices()
             enableDiscoverability()
         }
@@ -63,7 +77,9 @@ class MainActivity : AppCompatActivity() {
     private fun queryPairedDevices() {
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
         pairedDevices?.forEach { device ->
-            bluetoothDevice = device
+            if(device.address == "04:B1:A1:8B:79:92"){
+                bluetoothDevice = device
+            }
             val deviceName = device.name
             val deviceHardwareAddress = device.address // MAC address
             Log.d("TAG", "queryPairedDevices: deviceName : $deviceName ," +
@@ -143,14 +159,18 @@ class MainActivity : AppCompatActivity() {
             var shouldLoop = true
             while (shouldLoop) {
                 val socket: BluetoothSocket? = try {
+                    Log.d("AcceptThread", "accept called")
                     mmServerSocket?.accept()
                 } catch (e: IOException) {
-                    Log.e("TAG", "Socket's accept() method failed", e)
+                    Log.e("AcceptThread", "Socket's accept() method failed", e)
                     shouldLoop = false
                     null
                 }
                 socket?.also {
-                    //manageMyConnectedSocket(it)
+                    Log.d("AcceptThread", "socket is not Null!")
+                    val By = "salam".toByteArray()
+                    myBluetoothService.ConnectedThread(it).start()
+                    //myBluetoothService.ConnectedThread(it).write(By)
                     mmServerSocket?.close()
                     shouldLoop = false
                 }
@@ -167,7 +187,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
     private inner class ConnectThread(device: BluetoothDevice) : Thread() {
-
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createRfcommSocketToServiceRecord(uuid)
         }
@@ -184,6 +203,9 @@ class MainActivity : AppCompatActivity() {
                     // The connection attempt succeeded. Perform work associated with
                     // the connection in a separate thread.
                     //manageMyConnectedSocket(socket)
+                    val By = "salam".toByteArray()
+                    myBluetoothService.ConnectedThread(socket).start()
+                   //myBluetoothService.ConnectedThread(socket).write(By)
                 }
             }catch (e : IOException){
                 Log.d("TAG", "Bluetooth_Socket: exception ${e.message}")
