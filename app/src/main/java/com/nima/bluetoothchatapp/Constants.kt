@@ -12,5 +12,7 @@ interface Constants {
         // Key names received from the BluetoothChatService Handler
         const val DEVICE_NAME = "device_name"
         const val TOAST = "toast"
+        const val DATABASE_NAME = "BLUETOOTH_APPLICATION_CHAT"
+
     }
 }
