@@ -46,9 +46,6 @@ class ChatFragment : Fragment() {
      * Member object for the chat services
      */
     private var mChatService: BluetoothChatService? = null
-    fun o(savedInstanceState: Bundle?) {
-
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +131,7 @@ class ChatFragment : Fragment() {
         }
 
         // Initialize the BluetoothChatService to perform bluetooth connections
-        mChatService = BluetoothChatService(getActivity(), mHandler)
+        mChatService = BluetoothChatService(activity, mHandler)
 
         // Initialize the buffer for outgoing messages
         mOutStringBuffer = StringBuffer("")
@@ -143,15 +140,15 @@ class ChatFragment : Fragment() {
     /**
      * Makes this device discoverable for 300 seconds (5 minutes).
      */
-    private fun ensureDiscoverable() {
-        if (mBluetoothAdapter!!.scanMode !=
-            BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE
-        ) {
-            val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
-            startActivity(discoverableIntent)
-        }
-    }
+//    private fun ensureDiscoverable() {
+//        if (mBluetoothAdapter!!.scanMode !=
+//            BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE
+//        ) {
+//            val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
+//            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
+//            startActivity(discoverableIntent)
+//        }
+//    }
 
     /**
      * Sends a message.
@@ -160,13 +157,13 @@ class ChatFragment : Fragment() {
      */
     private fun sendMessage(message: String) {
         // Check that we're actually connected before trying anything
-        if (mChatService!!.state !== BluetoothChatService.STATE_CONNECTED) {
-            Toast.makeText(getActivity(), R.string.not_connected, Toast.LENGTH_SHORT).show()
+        if (mChatService!!.state != BluetoothChatService.STATE_CONNECTED) {
+            Toast.makeText(activity, R.string.not_connected, Toast.LENGTH_SHORT).show()
             return
         }
 
         // Check that there's actually something to send
-        if (message.length > 0) {
+        if (message.isNotEmpty()) {
             // Get the message bytes and tell the BluetoothChatService to write
             val send = message.toByteArray()
             mChatService!!.write(send)
@@ -195,8 +192,8 @@ class ChatFragment : Fragment() {
      * @param resId a string resource ID
      */
     private fun setStatus(resId: Int) {
-        val activity: FragmentActivity = getActivity() ?: return
-        val actionBar: ActionBar = activity.getActionBar() ?: return
+        val activity: FragmentActivity = activity ?: return
+        val actionBar: ActionBar = activity.actionBar ?: return
         actionBar.setSubtitle(resId)
     }
 
@@ -206,8 +203,8 @@ class ChatFragment : Fragment() {
      * @param subTitle status
      */
     private fun setStatus(subTitle: CharSequence) {
-        val activity: FragmentActivity = getActivity() ?: return
-        val actionBar: ActionBar = activity.getActionBar() ?: return
+        val activity: FragmentActivity = activity ?: return
+        val actionBar: ActionBar = activity.actionBar ?: return
         actionBar.subtitle = subTitle
     }
 
@@ -243,19 +240,15 @@ class ChatFragment : Fragment() {
                 Constants.MESSAGE_DEVICE_NAME -> {
                     // save the connected device's name
                     mConnectedDeviceName = msg.data.getString(Constants.DEVICE_NAME)
-                    if (null != activity) {
-                        Toast.makeText(
-                            activity, "Connected to "
-                                    + mConnectedDeviceName, Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-                Constants.MESSAGE_TOAST -> if (null != activity) {
                     Toast.makeText(
-                        activity, msg.data.getString(Constants.TOAST),
-                        Toast.LENGTH_SHORT
+                        activity, "Connected to "
+                                + mConnectedDeviceName, Toast.LENGTH_SHORT
                     ).show()
                 }
+                Constants.MESSAGE_TOAST -> Toast.makeText(
+                    activity, msg.data.getString(Constants.TOAST),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
