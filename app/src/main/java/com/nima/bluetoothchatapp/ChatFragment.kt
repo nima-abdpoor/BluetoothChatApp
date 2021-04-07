@@ -111,6 +111,7 @@ class ChatFragment : Fragment() {
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
     }
+
     private fun setupChat() {
         Log.d(TAG, "setupChat()")
 
@@ -283,6 +284,7 @@ class ChatFragment : Fragment() {
                 }
         }
     }
+
     private fun connectDevice(data: Intent, secure: Boolean) {
         // Get the device MAC address
         val address = data.extras?.getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS)
@@ -306,7 +308,7 @@ class ChatFragment : Fragment() {
 //            }
 //        }
 //        return false
- //   }
+    //   }
 
     companion object {
         private const val TAG = "BluetoothChatFragment"

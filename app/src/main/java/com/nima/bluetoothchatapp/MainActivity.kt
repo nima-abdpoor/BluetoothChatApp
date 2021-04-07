@@ -11,14 +11,13 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentTransaction
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -37,18 +36,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         checkForPermission()
         setBluetoothAdapter()
-        enableBluetooth()
-        val handler = object : Handler() {
-            override fun handleMessage(msg: Message) {
-                val bundle = msg.data
-                Log.d("TAG", "handleMessage: ${bundle.getString("key")}")
-                if (msg.what == 0) {
-                    Log.d("TAG", "handleMessage: READ_TIME ${msg.obj}")
-                }
-            }
-        }
-        myBluetoothService = MyBluetoothService(handler)
-
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        val fragment = ChatFragment()
+        transaction.add(fragment,null)
+        transaction.commit()
     }
 
     private fun enableBluetooth() {
@@ -56,7 +47,7 @@ class MainActivity : AppCompatActivity() {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         } else {
-            setupChat()
+//            setupChat()
             queryPairedDevices()
             //AcceptThread().start()
             discoverDevices()
@@ -64,14 +55,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupChat() {
-
-        // Initialize the BluetoothChatService to perform bluetooth connections
-        mChatService = BluetoothChatService(this, mHandler)
-
-        // Initialize the buffer for outgoing messages
-        mOutStringBuffer = StringBuffer("")
-    }
+//    private fun setupChat() {
+//
+//        // Initialize the BluetoothChatService to perform bluetooth connections
+//        mChatService = BluetoothChatService(this, mHandler)
+//
+//        // Initialize the buffer for outgoing messages
+//        mOutStringBuffer = StringBuffer("")
+//    }
 
     private fun setStatus(subTitle: CharSequence) {
         val activity: FragmentActivity = this
@@ -79,50 +70,6 @@ class MainActivity : AppCompatActivity() {
         actionBar.subtitle = subTitle
     }
 
-    private val mHandler: Handler = object : Handler() {
-        override fun handleMessage(msg: Message) {
-            when (msg.what) {
-                Constants.MESSAGE_STATE_CHANGE -> when (msg.arg1) {
-                    BluetoothChatService.STATE_CONNECTED -> {
-                        setStatus(getString(R.string.app_name))
-                        //mConversationArrayAdapter.clear()
-                    }
-                    BluetoothChatService.STATE_CONNECTING -> setStatus(getString(R.string.title_connecting))
-                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> setStatus(
-                        getString(R.string.title_not_connected)
-                    )
-                }
-                Constants.MESSAGE_WRITE -> {
-                    val writeBuf = msg.obj as ByteArray
-                    // construct a string from the buffer
-                    val writeMessage = String(writeBuf)
-                    Log.d("TAG", "handleMessage: ME :: $writeMessage")
-                    //mConversationArrayAdapter.add("Me:  $writeMessage")
-                }
-                Constants.MESSAGE_READ -> {
-                    val readBuf = msg.obj as ByteArray
-                    // construct a string from the valid bytes in the buffer
-                    val readMessage = String(readBuf, 0, msg.arg1)
-                    Log.d("TAG", "handleMessage: :: $readMessage")
-                    //mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + readMessage)
-                }
-                Constants.MESSAGE_DEVICE_NAME -> {
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.data.getString(Constants.DEVICE_NAME)
-                    Toast.makeText(
-                        this@MainActivity, "Connected to "
-                                + mConnectedDeviceName, Toast.LENGTH_SHORT
-                    ).show()
-
-                }
-                Constants.MESSAGE_TOAST ->
-                    Toast.makeText(
-                        this@MainActivity, msg.data.getString(Constants.TOAST),
-                        Toast.LENGTH_SHORT
-                    ).show()
-            }
-        }
-    }
 
     private fun enableDiscoverability() {
         val discoverableIntent: Intent =
