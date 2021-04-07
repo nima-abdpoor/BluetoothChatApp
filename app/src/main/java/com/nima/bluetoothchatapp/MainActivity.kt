@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         setBluetoothAdapter()
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
         val fragment = ChatFragment()
-        transaction.add(fragment,null)
+        transaction.replace(R.id.sample_content_fragment,fragment)
         transaction.commit()
     }
 

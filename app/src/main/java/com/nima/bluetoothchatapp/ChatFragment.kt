@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.view.*
@@ -213,7 +214,7 @@ class ChatFragment : Fragment() {
     /**
      * The Handler that gets information back from the BluetoothChatService
      */
-    private val mHandler: Handler = object : Handler() {
+    private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             val activity: FragmentActivity = requireActivity()
             when (msg.what) {
