@@ -293,35 +293,21 @@ class ChatFragment : Fragment() {
         mChatService!!.connect(device, secure)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.bluetooth_chat, menu)
-    }
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        inflater.inflate(R.menu.bluetooth_chat, menu)
+//    }
 
-    fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.secure_connect_scan -> {
-
-                // Launch the DeviceListActivity to see devices and do scan
-                val serverIntent = Intent(getActivity(), DeviceListActivity::class.java)
-                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE)
-                return true
-            }
-            R.id.insecure_connect_scan -> {
-
-                // Launch the DeviceListActivity to see devices and do scan
-                val serverIntent = Intent(getActivity(), DeviceListActivity::class.java)
-                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_INSECURE)
-                return true
-            }
-            R.id.discoverable -> {
-
-                // Ensure this device is discoverable by others
-                ensureDiscoverable()
-                return true
-            }
-        }
-        return false
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            R.id.discoverable -> {
+//
+//                // Ensure this device is discoverable by others
+//                ensureDiscoverable()
+//                return true
+//            }
+//        }
+//        return false
+ //   }
 
     companion object {
         private const val TAG = "BluetoothChatFragment"
