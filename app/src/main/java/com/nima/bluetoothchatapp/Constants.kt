@@ -13,6 +13,6 @@ interface Constants {
         const val DEVICE_NAME = "device_name"
         const val TOAST = "toast"
         const val DATABASE_NAME = "BLUETOOTH_APPLICATION_CHAT"
-
+        const val SHARED_PREFERENCES = "BCA_SHARED_PREFERENCES"
     }
 }
