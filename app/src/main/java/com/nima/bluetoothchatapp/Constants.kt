@@ -14,5 +14,10 @@ interface Constants {
         const val TOAST = "toast"
         const val DATABASE_NAME = "BLUETOOTH_APPLICATION_CHAT"
         const val SHARED_PREFERENCES = "BCA_SHARED_PREFERENCES"
+
+        //Message Status
+        const val MessageStatusNone = "0"
+        const val MessageStatusSend = "1"
+        const val MessageStatusSeen = "2"
     }
 }

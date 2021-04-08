@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.nima.bluetoothchatapp.database.entities.ChatMessage
+import com.nima.bluetoothchatapp.database.entities.ChildMessageEntity
 import com.nima.bluetoothchatapp.database.entities.ConnectedDevices
 import kotlinx.coroutines.flow.Flow
 
@@ -22,8 +23,14 @@ interface MyDao {
 
     //Devices
     @Query("SELECT * FROM connectedDevices")
-    fun getConnectedDevices() : LiveData<ConnectedDevices?>
+    fun getConnectedDevices() : LiveData<List<ConnectedDevices>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertConnectedDevices(devices: ConnectedDevices)
+
+    //ChildMessages
+    @Query("SELECT * FROM ChildMessageEntity WHERE id = (:ID)")
+    fun getChildMessages(ID : Int) : Flow<ChildMessageEntity>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertChildMessage(child :ChildMessageEntity)
 
 }

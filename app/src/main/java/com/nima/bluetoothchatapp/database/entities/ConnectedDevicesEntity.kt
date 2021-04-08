@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class ConnectedDevices constructor(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     var id : Int,
     var deviceName : String,
     var deviceAddress: String,
