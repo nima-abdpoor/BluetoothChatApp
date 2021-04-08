@@ -4,6 +4,7 @@ import com.nima.bluetoothchatapp.Constants.Companion.MessageStatusNone
 import com.nima.bluetoothchatapp.Constants.Companion.MessageStatusSeen
 import com.nima.bluetoothchatapp.chat.MessageAck
 import com.nima.bluetoothchatapp.chat.MessageStatus
+import java.lang.StringBuilder
 
 class MessageHeader {
 
@@ -28,5 +29,19 @@ class MessageHeader {
             message = this.substring(6)
         }
         return MessageAck(isMe,status,uId,message)
+    }
+    fun MessageAck.encode():String{
+        val sb = StringBuilder()
+        this.apply {
+            if (this.isMe) sb.append("0") else sb.append("1")
+            when(this.status){
+                is MessageStatus.MessageStatusNone -> sb.append("0")
+                is MessageStatus.MessageStatusSeen -> sb.append("1")
+                is MessageStatus.MessageStatusSend -> sb.append("0")
+            }
+            sb.append(this.UID)
+            sb.append(this.content)
+        }
+        return sb.toString()
     }
 }
