@@ -1,7 +1,5 @@
 package com.nima.bluetoothchatapp.repository
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import com.nima.bluetoothchatapp.database.MyDao
 import com.nima.bluetoothchatapp.database.entities.ChatMessage
@@ -15,9 +13,8 @@ class ChatRepository constructor(private val myDao: MyDao) {
     fun getAllMessages() : Flow<List<ChatMessage>> {
         return myDao.getMessages()
     }
-    @RequiresApi(Build.VERSION_CODES.O)
     fun insert(){
-        val text = ChatMessage(null,254,"LocalDateTime.now()","salam",true,"1",1)
+        val text = ChatMessage(0,254,"LocalDateTime.now()","salam",true,"1","0",2)
         myDao.insertMessage(text)
     }
 }

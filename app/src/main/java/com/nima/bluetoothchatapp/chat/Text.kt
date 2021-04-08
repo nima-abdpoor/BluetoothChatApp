@@ -3,17 +3,17 @@ package com.nima.bluetoothchatapp.chat
 class Text(
     private val content: Content,
     private val father: Father,
-    private val child: Child
+    private val child: Child?
 ) :Message {
-    override fun getContent(): Content {
+    override fun content(): Content {
         return content
     }
 
-    override fun getFather(): Father {
+    override fun father(): Father {
         return father
     }
 
-    override fun getChild(): Child {
+    override fun child(): Child? {
         return child
     }
 }

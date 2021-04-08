@@ -1,10 +1,8 @@
 package com.nima.bluetoothchatapp.chat
 
-import java.sql.Time
-
 data class Content(
     var id : Int,
-    var time : Time,
+    var time : String,
     var content: String,
     var senderId : Int,
     var isMe : Boolean,

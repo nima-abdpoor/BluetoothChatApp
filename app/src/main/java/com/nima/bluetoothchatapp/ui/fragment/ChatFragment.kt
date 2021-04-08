@@ -77,7 +77,6 @@ class ChatFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
         // If BT is not on, request that it be enabled.
@@ -121,7 +120,6 @@ class ChatFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_bluetooth_chat, container, false)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         chatRepository = ChatRepository(dao)
         mConversationView = view.findViewById<View>(R.id.`in`) as ListView
@@ -151,7 +149,6 @@ class ChatFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupChat() {
         Log.d(TAG, "setupChat()")
 

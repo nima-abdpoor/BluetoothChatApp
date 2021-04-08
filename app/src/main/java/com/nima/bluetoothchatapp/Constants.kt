@@ -19,5 +19,11 @@ interface Constants {
         const val MessageStatusNone = "0"
         const val MessageStatusSend = "1"
         const val MessageStatusSeen = "2"
+
+        //Message Type
+        const val MessageTypeText = "0"
+        const val MessageTypeFile = "1"
+        const val MessageTypeVoice = "2"
+        const val MessageTypeNone = "3"
     }
 }
