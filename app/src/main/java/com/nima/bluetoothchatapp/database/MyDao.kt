@@ -5,22 +5,22 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.nima.bluetoothchatapp.database.entities.Account
-import com.nima.bluetoothchatapp.database.entities.UserInfo
+import com.nima.bluetoothchatapp.database.entities.ChatMessage
+import com.nima.bluetoothchatapp.database.entities.ConnectedDevices
 
 @Dao
 interface MyDao {
 
-    //Account
-    @Query("SELECT * FROM account")
-    fun getAccount(): Account
+    //Messages
+    @Query("SELECT * FROM ChatMessage")
+    fun getMessage(): ChatMessage
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAccount(vararg account: Account)
+    fun insertMessage(vararg message: ChatMessage)
 
-    //UserInfo
-    @Query("SELECT * FROM userInfo")
-    fun getUserInfo() : LiveData<UserInfo?>
+    //Devices
+    @Query("SELECT * FROM connectedDevices")
+    fun getConnectedDevices() : LiveData<ConnectedDevices?>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUserInfo(userInfo: UserInfo)
+    fun insertConnectedDevices(devices: ConnectedDevices)
 
 }

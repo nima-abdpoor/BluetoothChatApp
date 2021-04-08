@@ -4,9 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class UserInfo constructor(
+data class ConnectedDevices constructor(
     @PrimaryKey
     var id : Int,
-    var userName : String,
-    var password: String,
+    var deviceName : String,
+    var deviceAddress: String,
 )

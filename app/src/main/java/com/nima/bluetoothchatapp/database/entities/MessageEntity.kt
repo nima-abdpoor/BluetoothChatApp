@@ -9,10 +9,10 @@ import java.sql.Time
 data class ChatMessage constructor(
     @PrimaryKey
     val id: Int,
-    val messageId : Int,
+    val senderId: Int,
     val time : Time,
     val content: String,
-    val senderId : Int,
     val isMe :Boolean,
-    val status: MessageStatus
+    val status: MessageStatus,
+    val fatherId:Int
 )
