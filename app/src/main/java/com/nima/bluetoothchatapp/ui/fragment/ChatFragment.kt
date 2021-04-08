@@ -14,10 +14,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.Constants
+import androidx.fragment.app.viewModels
 import com.nima.bluetoothchatapp.DeviceListActivity
 import com.nima.bluetoothchatapp.R
 import com.nima.bluetoothchatapp.database.MyDao
 import com.nima.bluetoothchatapp.repository.ChatRepository
+import com.nima.bluetoothchatapp.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +38,7 @@ class ChatFragment : Fragment() {
     @Inject
     lateinit var dao: MyDao
 
+    private val viewMode:ChatViewModel by viewModels()
     lateinit var chatRepository : ChatRepository
     /**
      * Name of the connected device
