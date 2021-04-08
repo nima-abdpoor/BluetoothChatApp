@@ -2,23 +2,24 @@ package com.nima.bluetoothchatapp
 
 import com.nima.bluetoothchatapp.Constants.Companion.MessageStatusNone
 import com.nima.bluetoothchatapp.Constants.Companion.MessageStatusSeen
+import com.nima.bluetoothchatapp.Constants.Companion.MessageStatusSend
 import com.nima.bluetoothchatapp.chat.MessageAck
 import com.nima.bluetoothchatapp.chat.MessageStatus
 
 fun String.decode(): MessageAck {
-    var isMe: Boolean = true
+    var isMe = true
     var status: MessageStatus = MessageStatus.MessageStatusNone(0)
-    var uId: String = "0000"
-    var message: String = ""
+    var uId = "0000"
+    var message = ""
     if (this.isNotEmpty()) {
         var m = this.substring(0, 1)
         isMe = m == "0"
         m = this.substring(1, 2)
         when (m) {
-            MessageStatusNone -> {
+            "0" -> {
                 status = MessageStatus.MessageStatusNone(0)
             }
-            MessageStatusSeen -> {
+            "1" -> {
                 status = MessageStatus.MessageStatusSeen(0)
             }
         }
