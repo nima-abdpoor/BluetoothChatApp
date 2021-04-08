@@ -29,21 +29,20 @@ class ChatFragment : Fragment() {
     private var mConversationView: ListView? = null
     private var mOutEditText: EditText? = null
     private var mSendButton: Button? = null
-    private var chatId = "1"
+    private var chatId = "-1"
     private var myId = 1
 
     @Inject
     lateinit var dao: MyDao
 
-    private lateinit var randomUIDGenerator :RandomUIDGenerator
+    private lateinit var randomUIDGenerator: RandomUIDGenerator
     private val viewMode: ChatViewModel by viewModels()
 
     lateinit var chatRepository: ChatRepository
 
-    /**
-     * Name of the connected device
-     */
+
     private var mConnectedDeviceName: String? = null
+    private var mConnectedDeviceAddress: String? = null
 
     /**
      * Array adapter for the conversation thread
@@ -148,9 +147,14 @@ class ChatFragment : Fragment() {
             if (null != view) {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
                 val message = textView.text.toString()
-                val m = MessageAck(true,MessageStatus.MessageStatusNone(0),randomUIDGenerator.generate(),message)
+                val m = MessageAck(
+                    true,
+                    MessageStatus.MessageStatusNone(0),
+                    randomUIDGenerator.generate(),
+                    message
+                )
                 sendMessage(m)
-                insertMessage(message, chatId,m.UID, myId, true, -1)
+                insertMessage(message, chatId, m.UID, myId, true, -1)
             }
         }
 
@@ -180,12 +184,12 @@ class ChatFragment : Fragment() {
     fun insertMessage(
         writeMessage: String,
         chatId: String,
-        uId:String,
+        uId: String,
         senderId: Int,
         isMe: Boolean,
         fatherId: Int
     ) {
-        viewMode.insertMessage(writeMessage, chatId,uId, senderId, isMe, fatherId)
+        viewMode.insertMessage(writeMessage, chatId, uId, senderId, isMe, fatherId)
     }
 
     private fun sendMessage(message: MessageAck) {
@@ -245,6 +249,7 @@ class ChatFragment : Fragment() {
                 Constants.MESSAGE_STATE_CHANGE -> when (msg.arg1) {
                     BluetoothChatService.STATE_CONNECTED -> {
                         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
+
                         mConversationArrayAdapter!!.clear()
                     }
                     BluetoothChatService.STATE_CONNECTING -> setStatus(R.string.title_connecting)
@@ -257,7 +262,7 @@ class ChatFragment : Fragment() {
                     // construct a string from the buffer
                     val writeMessage = String(writeBuf)
                     mConversationArrayAdapter!!.add("Me:  $writeMessage")
-                    insertMessage(writeMessage, chatId,writeMessage.decode().UID, myId, true, -1)
+                    insertMessage(writeMessage, chatId, writeMessage.decode().UID, myId, true, -1)
                 }
                 Constants.MESSAGE_READ -> {
                     val readBuf = msg.obj as ByteArray
@@ -268,6 +273,8 @@ class ChatFragment : Fragment() {
                 Constants.MESSAGE_DEVICE_NAME -> {
                     // save the connected device's name
                     mConnectedDeviceName = msg.data.getString(Constants.DEVICE_NAME)
+                    mConnectedDeviceAddress = msg.data.getString(Constants.DEVICE_ADDRESS)
+                    chatId = mConnectedDeviceAddress ?: "-1"
                     Toast.makeText(
                         requireContext(), "Connected to "
                                 + mConnectedDeviceName, Toast.LENGTH_SHORT
