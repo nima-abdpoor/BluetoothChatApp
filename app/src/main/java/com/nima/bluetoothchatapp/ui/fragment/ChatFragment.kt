@@ -12,20 +12,15 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.nima.bluetoothchatapp.service.BluetoothChatService
-import com.nima.bluetoothchatapp.Constants
 import androidx.fragment.app.viewModels
+import com.nima.bluetoothchatapp.Constants
 import com.nima.bluetoothchatapp.DeviceListActivity
 import com.nima.bluetoothchatapp.R
 import com.nima.bluetoothchatapp.database.MyDao
 import com.nima.bluetoothchatapp.repository.ChatRepository
+import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -128,28 +123,6 @@ class ChatFragment : Fragment() {
         mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
-        CoroutineScope(Dispatchers.IO).launch {
-            chatRepository.getAllMessages().collect {
-                it.forEach {
-                    Log.d(TAG, "onViewCreated collected : $it")
-                }
-            }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            val g = chatRepository.getNewMessage(latestId)
-            withContext(Dispatchers.Main){
-                g.observe(viewLifecycleOwner){ it ->
-                    it.forEach {
-                        Log.d("TAG", "onCreateddddddddd: $it")
-                    }
-                    if (it.isNotEmpty()){
-                        it.last().id?.let {
-                            latestId = it
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private fun setupChat() {
@@ -169,9 +142,6 @@ class ChatFragment : Fragment() {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
                 val message = textView.text.toString()
                 sendMessage(message)
-                CoroutineScope(Dispatchers.IO).launch {
-                    chatRepository.insert()
-                }
             }
         }
 
@@ -204,19 +174,13 @@ class ChatFragment : Fragment() {
      * @param message A string of text to send.
      */
     private fun sendMessage(message: String) {
-        // Check that we're actually connected before trying anything
         if (mChatService!!.state != BluetoothChatService.STATE_CONNECTED) {
             Toast.makeText(activity, R.string.not_connected, Toast.LENGTH_SHORT).show()
             return
         }
-
-        // Check that there's actually something to send
         if (message.isNotEmpty()) {
-            // Get the message bytes and tell the BluetoothChatService to write
             val send = message.toByteArray()
             mChatService!!.write(send)
-
-            // Reset out string buffer to zero and clear the edit text field
             mOutStringBuffer!!.setLength(0)
             mOutEditText!!.setText(mOutStringBuffer)
         }

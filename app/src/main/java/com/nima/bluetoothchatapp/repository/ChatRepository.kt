@@ -1,20 +1,29 @@
 package com.nima.bluetoothchatapp.repository
 
 import androidx.lifecycle.LiveData
+import com.nima.bluetoothchatapp.chat.Message
 import com.nima.bluetoothchatapp.database.MyDao
 import com.nima.bluetoothchatapp.database.entities.ChatMessage
+import com.nima.bluetoothchatapp.mapper.ChatMessageMapper
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 class ChatRepository constructor(private val myDao: MyDao) {
 
-    fun getNewMessage(id : Int) : LiveData<List<ChatMessage>>{
+    @Inject
+    lateinit var chatMessageMapper: ChatMessageMapper
+
+    fun getNewMessage(id: Int): LiveData<List<ChatMessage>> {
         return myDao.getLastMessage(id)
     }
-    fun getAllMessages() : Flow<List<ChatMessage>> {
-        return myDao.getMessages()
+
+    //get All Messages with ChatID
+    fun getAllMessages(chatId : String): Flow<List<ChatMessage>> {
+        return myDao.getMessages(chatId)
     }
-    fun insert(){
-        val text = ChatMessage(0,254,"LocalDateTime.now()","salam",true,"1","0",2)
-        myDao.insertMessage(text)
+
+    fun insert(message : Message) {
+        val chatMessage = chatMessageMapper.mapToEntity(message)
+        chatMessage?.let { myDao.insertMessage(it) }
     }
 }

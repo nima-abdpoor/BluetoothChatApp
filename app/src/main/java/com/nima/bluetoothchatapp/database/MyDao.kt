@@ -13,19 +13,31 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MyDao {
 
+    /* ------------------------------------------------------------*/
+
+
     //Messages
     @Query("SELECT * FROM ChatMessage WHERE id > (:ID)")
     fun getLastMessage(ID : Int): LiveData<List<ChatMessage>>
-    @Query("SELECT * FROM ChatMessage")
-    fun getMessages(): Flow<List<ChatMessage>>
+
+    @Query("SELECT * FROM ChatMessage WHERE chatId = (:chatID)")
+    fun getMessages(chatID : String): Flow<List<ChatMessage>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(vararg message: ChatMessage)
+
+
+    /* ------------------------------------------------------------*/
+
 
     //Devices
     @Query("SELECT * FROM connectedDevices")
     fun getConnectedDevices() : LiveData<List<ConnectedDevices>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertConnectedDevices(devices: ConnectedDevices)
+
+    /* ------------------------------------------------------------*/
+
 
     //ChildMessages
     @Query("SELECT * FROM ChildMessageEntity WHERE id = (:ID)")

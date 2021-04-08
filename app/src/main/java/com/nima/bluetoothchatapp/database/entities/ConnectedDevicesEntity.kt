@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class ConnectedDevices constructor(
     @PrimaryKey(autoGenerate = true)
     var id : Int,
+    val chatId:String,
     var deviceName : String,
     var deviceAddress: String,
 )

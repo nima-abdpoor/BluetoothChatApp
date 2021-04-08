@@ -15,6 +15,7 @@ class ChatMessageMapper @Inject constructor() : EntityMapper<ChatMessage, Messag
             MessageTypeText ->Text(
                 content = Content(
                     id  = entity.id,
+                    chatId = entity.chatId,
                     time = entity.time,
                     content = entity.content,
                     senderId = entity.senderId,
@@ -36,6 +37,7 @@ class ChatMessageMapper @Inject constructor() : EntityMapper<ChatMessage, Messag
         domainModel?.let { message ->
             return ChatMessage(
                 id = message.content().id,
+                chatId = message.content().chatId,
                 senderId = message.content().senderId,
                 time = message.content().time,
                 content = message.content().content,
