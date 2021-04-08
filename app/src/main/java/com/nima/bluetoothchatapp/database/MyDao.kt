@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.nima.bluetoothchatapp.database.entities.Account
-import com.nima.tmdb.database.entities.UserInfo
+import com.nima.bluetoothchatapp.database.entities.UserInfo
 
 @Dao
 interface MyDao {
