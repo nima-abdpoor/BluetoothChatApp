@@ -10,8 +10,8 @@ class MessageHeaderTest {
     private lateinit var randoms : List<String>
     @Before
     fun setup(){
-//        val generator  = RandomUIDGenerator()
-//        randoms = generator.generate(6)
+        val generator  = RandomUIDGenerator()
+        randoms = generator.generate(6)
     }
     @Test
     fun decodeStringToMessageAck(){

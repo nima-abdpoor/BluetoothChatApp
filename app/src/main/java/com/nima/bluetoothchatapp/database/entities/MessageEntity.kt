@@ -10,6 +10,7 @@ data class ChatMessage constructor(
     val chatId:String,
     val senderId: Int,
     val time : String,
+    val uId :String,
     val content: String,
     val isMe :Boolean,
     val status: String,

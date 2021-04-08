@@ -13,9 +13,9 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
-import com.nima.bluetoothchatapp.Constants
-import com.nima.bluetoothchatapp.DeviceListActivity
-import com.nima.bluetoothchatapp.R
+import com.nima.bluetoothchatapp.*
+import com.nima.bluetoothchatapp.chat.MessageAck
+import com.nima.bluetoothchatapp.chat.MessageStatus
 import com.nima.bluetoothchatapp.database.MyDao
 import com.nima.bluetoothchatapp.repository.ChatRepository
 import com.nima.bluetoothchatapp.service.BluetoothChatService
@@ -35,6 +35,7 @@ class ChatFragment : Fragment() {
     @Inject
     lateinit var dao: MyDao
 
+    private lateinit var randomUIDGenerator :RandomUIDGenerator
     private val viewMode: ChatViewModel by viewModels()
 
     lateinit var chatRepository: ChatRepository
@@ -128,6 +129,7 @@ class ChatFragment : Fragment() {
         mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
+        randomUIDGenerator = RandomUIDGenerator()
     }
 
     private fun setupChat() {
@@ -146,8 +148,9 @@ class ChatFragment : Fragment() {
             if (null != view) {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
                 val message = textView.text.toString()
-                sendMessage(message)
-                insertMessage(message, chatId, myId, true, -1)
+                val m = MessageAck(true,MessageStatus.MessageStatusNone(0),randomUIDGenerator.generate(),message)
+                sendMessage(m)
+                insertMessage(message, chatId,m.UID, myId, true, -1)
             }
         }
 
@@ -177,20 +180,22 @@ class ChatFragment : Fragment() {
     fun insertMessage(
         writeMessage: String,
         chatId: String,
+        uId:String,
         senderId: Int,
         isMe: Boolean,
         fatherId: Int
     ) {
-        viewMode.insertMessage(writeMessage, chatId, senderId, isMe, fatherId)
+        viewMode.insertMessage(writeMessage, chatId,uId, senderId, isMe, fatherId)
     }
 
-    private fun sendMessage(message: String) {
+    private fun sendMessage(message: MessageAck) {
         if (mChatService!!.state != BluetoothChatService.STATE_CONNECTED) {
             Toast.makeText(activity, R.string.not_connected, Toast.LENGTH_SHORT).show()
             return
         }
-        if (message.isNotEmpty()) {
-            val send = message.toByteArray()
+        val m = message.content
+        if (m.isNotEmpty()) {
+            val send = message.encode().toByteArray()
             mChatService!!.write(send)
             mOutStringBuffer!!.setLength(0)
             mOutEditText!!.setText(mOutStringBuffer)
@@ -204,7 +209,7 @@ class ChatFragment : Fragment() {
         TextView.OnEditorActionListener { view, actionId, event -> // If the action is a key-up event on the return key, send the message
             if (actionId == EditorInfo.IME_NULL && event.action == KeyEvent.ACTION_UP) {
                 val message = view.text.toString()
-                sendMessage(message)
+                //sendMessage(message)
             }
             true
         }
@@ -252,7 +257,7 @@ class ChatFragment : Fragment() {
                     // construct a string from the buffer
                     val writeMessage = String(writeBuf)
                     mConversationArrayAdapter!!.add("Me:  $writeMessage")
-                    insertMessage(writeMessage, chatId, myId, true, -1)
+                    insertMessage(writeMessage, chatId,writeMessage.decode().UID, myId, true, -1)
                 }
                 Constants.MESSAGE_READ -> {
                     val readBuf = msg.obj as ByteArray

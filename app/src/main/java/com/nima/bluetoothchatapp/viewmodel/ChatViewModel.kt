@@ -16,9 +16,9 @@ class ChatViewModel @ViewModelInject constructor
     (private val repository: ChatRepository)
     : ViewModel(){
 
-    fun insertMessage(writeMessage: String, chatId: String,senderId:Int,isMe:Boolean,fatherId :Int) {
+    fun insertMessage(writeMessage: String, chatId: String,uid:String ,senderId:Int,isMe:Boolean,fatherId :Int) {
         val message = Text(
-            content = Content(0,chatId,"123",writeMessage,senderId,isMe,MessageStatus.MessageStatusSend(senderId)),
+            content = Content(0,chatId,"123",uid, writeMessage,senderId,isMe,MessageStatus.MessageStatusSend(senderId)),
             father = Father(fatherId),
             child = null
         )

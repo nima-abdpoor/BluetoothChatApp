@@ -18,6 +18,7 @@ class ChatMessageMapper @Inject constructor() : EntityMapper<ChatMessage, Messag
                     chatId = entity.chatId,
                     time = entity.time,
                     content = entity.content,
+                    uId = entity.uId,
                     senderId = entity.senderId,
                     isMe = entity.isMe,
                     status = when(entity.status){
@@ -41,6 +42,7 @@ class ChatMessageMapper @Inject constructor() : EntityMapper<ChatMessage, Messag
                 senderId = message.content().senderId,
                 time = message.content().time,
                 content = message.content().content,
+                uId = message.content().uId,
                 isMe = message.content().isMe,
                 status = when(message.content().status){
                     is MessageStatus.MessageStatusNone -> MessageStatusNone
