@@ -236,7 +236,6 @@ class ChatFragment : Fragment() {
      */
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
-            val activity: FragmentActivity = requireActivity()
             when (msg.what) {
                 Constants.MESSAGE_STATE_CHANGE -> when (msg.arg1) {
                     BluetoothChatService.STATE_CONNECTED -> {
@@ -265,12 +264,12 @@ class ChatFragment : Fragment() {
                     // save the connected device's name
                     mConnectedDeviceName = msg.data.getString(Constants.DEVICE_NAME)
                     Toast.makeText(
-                        activity, "Connected to "
+                        requireContext(), "Connected to "
                                 + mConnectedDeviceName, Toast.LENGTH_SHORT
                     ).show()
                 }
                 Constants.MESSAGE_TOAST -> Toast.makeText(
-                    activity, msg.data.getString(Constants.TOAST),
+                    requireContext(), msg.data.getString(Constants.TOAST),
                     Toast.LENGTH_SHORT
                 ).show()
             }
