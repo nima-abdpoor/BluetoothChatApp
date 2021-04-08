@@ -4,27 +4,38 @@ import android.app.ActionBar
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
+import android.os.*
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.Constants
 import com.nima.bluetoothchatapp.DeviceListActivity
 import com.nima.bluetoothchatapp.R
+import com.nima.bluetoothchatapp.database.MyDao
+import com.nima.bluetoothchatapp.repository.ChatRepository
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ChatFragment : Fragment() {
     // Layout Views
     private var mConversationView: ListView? = null
     private var mOutEditText: EditText? = null
     private var mSendButton: Button? = null
 
+    @Inject
+    lateinit var dao: MyDao
+
+    lateinit var chatRepository : ChatRepository
     /**
      * Name of the connected device
      */
@@ -64,6 +75,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
         // If BT is not on, request that it be enabled.
@@ -107,12 +119,25 @@ class ChatFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_bluetooth_chat, container, false)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        chatRepository = ChatRepository(dao)
         mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
+        CoroutineScope(Dispatchers.IO).launch {
+            val g = chatRepository.saveMessage()
+            withContext(Dispatchers.Main){
+                g.observe(viewLifecycleOwner){ it ->
+                    it.forEach {
+                        Log.d("TAG", "onCreateddddddddd: $it")
+                    }
+                }
+            }
+        }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupChat() {
         Log.d(TAG, "setupChat()")
 
@@ -130,6 +155,9 @@ class ChatFragment : Fragment() {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
                 val message = textView.text.toString()
                 sendMessage(message)
+                CoroutineScope(Dispatchers.IO).launch {
+                    chatRepository.insert()
+                }
             }
         }
 
@@ -184,7 +212,7 @@ class ChatFragment : Fragment() {
      * The action listener for the EditText widget, to listen for the return key
      */
     private val mWriteListener =
-        OnEditorActionListener { view, actionId, event -> // If the action is a key-up event on the return key, send the message
+        TextView.OnEditorActionListener { view, actionId, event -> // If the action is a key-up event on the return key, send the message
             if (actionId == EditorInfo.IME_NULL && event.action == KeyEvent.ACTION_UP) {
                 val message = view.text.toString()
                 sendMessage(message)

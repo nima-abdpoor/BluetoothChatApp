@@ -9,21 +9,33 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
 import com.nima.bluetoothchatapp.R
+import com.nima.bluetoothchatapp.database.MyDao
+import com.nima.bluetoothchatapp.repository.ChatRepository
 import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.ui.fragment.ChatFragment
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
     private val PERMISSION_CODE = 100
     private val REQUEST_ENABLE_BT = 101
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothDevice: BluetoothDevice? = null
     private var mChatService: BluetoothChatService? = null
     private val str: String = "BLUETOOTH_CHAT_APPLICATION"
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

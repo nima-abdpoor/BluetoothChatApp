@@ -13,7 +13,7 @@ interface MyDao {
 
     //Messages
     @Query("SELECT * FROM ChatMessage")
-    fun getMessage(): ChatMessage
+    fun getMessage(): LiveData<List<ChatMessage>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(vararg message: ChatMessage)
 
