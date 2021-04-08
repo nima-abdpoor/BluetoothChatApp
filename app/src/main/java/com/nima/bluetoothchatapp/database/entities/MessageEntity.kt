@@ -8,7 +8,7 @@ data class ChatMessage constructor(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val chatId:String,
-    val senderId: Int,
+    val senderId: String,
     val time : String,
     val uId :String,
     val content: String,

@@ -6,7 +6,7 @@ data class Content(
     var time : String,
     var uId:String,
     var content: String,
-    var senderId : Int,
+    var senderId : String,
     var isMe : Boolean,
     var status :MessageStatus
 )

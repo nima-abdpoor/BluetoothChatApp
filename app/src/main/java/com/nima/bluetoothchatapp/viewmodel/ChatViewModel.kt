@@ -1,6 +1,5 @@
 package com.nima.bluetoothchatapp.viewmodel
 
-import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import com.nima.bluetoothchatapp.chat.Content
@@ -23,7 +22,7 @@ class ChatViewModel @ViewModelInject constructor
         writeMessage: String,
         chatId: String,
         uid: String,
-        senderId: Int,
+        senderId: String,
         isMe: Boolean,
         fatherId: Int
     ) {
@@ -37,7 +36,7 @@ class ChatViewModel @ViewModelInject constructor
                 senderId,
                 isMe,
                 MessageStatus.MessageStatusSend(
-                    senderId
+                    Integer.parseInt(chatId)
                 )
             ),
             father = Father(fatherId),

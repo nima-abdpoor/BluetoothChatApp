@@ -43,6 +43,7 @@ class ChatFragment : Fragment() {
 
     private var mConnectedDeviceName: String? = null
     private var mConnectedDeviceAddress: String? = null
+    private var myDeviceAddress: String? = null
 
     /**
      * Array adapter for the conversation thread
@@ -77,6 +78,11 @@ class ChatFragment : Fragment() {
             val activity: FragmentActivity = requireActivity()
             Toast.makeText(activity, "Bluetooth is not available", Toast.LENGTH_LONG).show()
             activity.finish()
+        }
+        else{
+          mBluetoothAdapter?.let {
+              myDeviceAddress = it.address
+          }
         }
     }
 
@@ -149,12 +155,12 @@ class ChatFragment : Fragment() {
                 val message = textView.text.toString()
                 val m = MessageAck(
                     true,
-                    MessageStatus.MessageStatusNone(0),
+                    MessageStatus.MessageStatusNone(),
                     randomUIDGenerator.generate(),
                     message
                 )
                 sendMessage(m)
-                insertMessage(message, chatId, m.UID, myId, true, -1)
+                insertMessage(message, chatId, m.UID, myDeviceAddress!!, true, -1)
             }
         }
 
@@ -185,7 +191,7 @@ class ChatFragment : Fragment() {
         writeMessage: String,
         chatId: String,
         uId: String,
-        senderId: Int,
+        senderId: String,
         isMe: Boolean,
         fatherId: Int
     ) {
@@ -212,7 +218,7 @@ class ChatFragment : Fragment() {
     private val mWriteListener =
         TextView.OnEditorActionListener { view, actionId, event -> // If the action is a key-up event on the return key, send the message
             if (actionId == EditorInfo.IME_NULL && event.action == KeyEvent.ACTION_UP) {
-                val message = view.text.toString()
+                //val message = view.text.toString()
                 //sendMessage(message)
             }
             true
@@ -262,7 +268,7 @@ class ChatFragment : Fragment() {
                     // construct a string from the buffer
                     val writeMessage = String(writeBuf)
                     mConversationArrayAdapter!!.add("Me:  $writeMessage")
-                    insertMessage(writeMessage, chatId, writeMessage.decode().UID, myId, true, -1)
+                    insertMessage(writeMessage, chatId, writeMessage.decode().UID, myDeviceAddress!!, true, -1)
                 }
                 Constants.MESSAGE_READ -> {
                     val readBuf = msg.obj as ByteArray

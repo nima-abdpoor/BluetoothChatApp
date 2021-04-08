@@ -15,16 +15,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
 import com.nima.bluetoothchatapp.R
-import com.nima.bluetoothchatapp.database.MyDao
-import com.nima.bluetoothchatapp.repository.ChatRepository
 import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.ui.fragment.ChatFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
