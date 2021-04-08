@@ -29,12 +29,16 @@ class ChatFragment : Fragment() {
     private var mConversationView: ListView? = null
     private var mOutEditText: EditText? = null
     private var mSendButton: Button? = null
+    private var chatId = "1"
+    private var myId = 1
 
     @Inject
     lateinit var dao: MyDao
 
-    private val viewMode:ChatViewModel by viewModels()
-    lateinit var chatRepository : ChatRepository
+    private val viewMode: ChatViewModel by viewModels()
+
+    lateinit var chatRepository: ChatRepository
+
     /**
      * Name of the connected device
      */
@@ -55,7 +59,8 @@ class ChatFragment : Fragment() {
      */
     private var mBluetoothAdapter: BluetoothAdapter? = null
 
-    private var latestId : Int = 0
+    private var latestId: Int = 0
+
     /**
      * Member object for the chat services
      */
@@ -142,6 +147,7 @@ class ChatFragment : Fragment() {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
                 val message = textView.text.toString()
                 sendMessage(message)
+                insertMessage(message, chatId, myId, true, -1)
             }
         }
 
@@ -168,11 +174,16 @@ class ChatFragment : Fragment() {
 //        }
 //    }
 
-    /**
-     * Sends a message.
-     *
-     * @param message A string of text to send.
-     */
+    fun insertMessage(
+        writeMessage: String,
+        chatId: String,
+        senderId: Int,
+        isMe: Boolean,
+        fatherId: Int
+    ) {
+        viewMode.insertMessage(writeMessage, chatId, senderId, isMe, fatherId)
+    }
+
     private fun sendMessage(message: String) {
         if (mChatService!!.state != BluetoothChatService.STATE_CONNECTED) {
             Toast.makeText(activity, R.string.not_connected, Toast.LENGTH_SHORT).show()
@@ -242,6 +253,7 @@ class ChatFragment : Fragment() {
                     // construct a string from the buffer
                     val writeMessage = String(writeBuf)
                     mConversationArrayAdapter!!.add("Me:  $writeMessage")
+                    insertMessage(writeMessage, chatId, myId, true, -1)
                 }
                 Constants.MESSAGE_READ -> {
                     val readBuf = msg.obj as ByteArray

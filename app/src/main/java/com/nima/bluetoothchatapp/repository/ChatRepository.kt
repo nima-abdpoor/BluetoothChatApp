@@ -8,7 +8,7 @@ import com.nima.bluetoothchatapp.mapper.ChatMessageMapper
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ChatRepository constructor(private val myDao: MyDao) {
+class ChatRepository @Inject constructor(private val myDao: MyDao) {
 
     @Inject
     lateinit var chatMessageMapper: ChatMessageMapper

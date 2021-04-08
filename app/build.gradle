@@ -58,8 +58,9 @@ dependencies {
     //hilt
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hilt_viewModel_version"
     implementation "com.google.dagger:hilt-android:$hilt_version"
-    kapt 'androidx.hilt:hilt-compiler:1.0.0-beta01'
+    kapt 'androidx.hilt:hilt-compiler:1.0.0-alpha03'
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
+    annotationProcessor 'com.google.dagger:hilt-android-compiler:2.31.2-alpha'
 
     // Room database
     implementation "androidx.room:room-runtime:2.3.0-rc01"
