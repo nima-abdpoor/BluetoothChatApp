@@ -5,11 +5,15 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import com.nima.bluetoothchatapp.database.MyDao
 import com.nima.bluetoothchatapp.database.entities.ChatMessage
+import kotlinx.coroutines.flow.Flow
 
 class ChatRepository constructor(private val myDao: MyDao) {
 
-    fun saveMessage() : LiveData<List<ChatMessage>>{
-        return myDao.getMessage()
+    fun getNewMessage(id : Int) : LiveData<List<ChatMessage>>{
+        return myDao.getLastMessage(id)
+    }
+    fun getAllMessages() : Flow<List<ChatMessage>> {
+        return myDao.getMessages()
     }
     @RequiresApi(Build.VERSION_CODES.O)
     fun insert(){

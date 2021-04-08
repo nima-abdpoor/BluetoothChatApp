@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class ChatMessage constructor(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     val id: Int?,
     val senderId: Int,
     val time : String,

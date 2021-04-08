@@ -7,13 +7,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.nima.bluetoothchatapp.database.entities.ChatMessage
 import com.nima.bluetoothchatapp.database.entities.ConnectedDevices
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MyDao {
 
     //Messages
+    @Query("SELECT * FROM ChatMessage WHERE id > (:ID)")
+    fun getLastMessage(ID : Int): LiveData<List<ChatMessage>>
     @Query("SELECT * FROM ChatMessage")
-    fun getMessage(): LiveData<List<ChatMessage>>
+    fun getMessages(): Flow<List<ChatMessage>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(vararg message: ChatMessage)
 

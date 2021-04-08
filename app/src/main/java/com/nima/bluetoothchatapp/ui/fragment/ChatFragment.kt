@@ -21,6 +21,7 @@ import com.nima.bluetoothchatapp.repository.ChatRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -56,6 +57,7 @@ class ChatFragment : Fragment() {
      */
     private var mBluetoothAdapter: BluetoothAdapter? = null
 
+    private var latestId : Int = 0
     /**
      * Member object for the chat services
      */
@@ -126,11 +128,23 @@ class ChatFragment : Fragment() {
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
         CoroutineScope(Dispatchers.IO).launch {
-            val g = chatRepository.saveMessage()
+            chatRepository.getAllMessages().collect {
+                it.forEach {
+                    Log.d(TAG, "onViewCreated collected : $it")
+                }
+            }
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            val g = chatRepository.getNewMessage(latestId)
             withContext(Dispatchers.Main){
                 g.observe(viewLifecycleOwner){ it ->
                     it.forEach {
                         Log.d("TAG", "onCreateddddddddd: $it")
+                    }
+                    if (it.isNotEmpty()){
+                        it.last().id?.let {
+                            latestId = it
+                        }
                     }
                 }
             }
@@ -287,6 +301,7 @@ class ChatFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_CONNECT_DEVICE_SECURE ->                 // When DeviceListActivity returns with a device to connect
