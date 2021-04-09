@@ -30,7 +30,7 @@ interface MyDao {
     fun updateMyMessageStatus(status : String,uId :String,message  :String)
 
     @Query("SELECT * FROM ChatMessage WHERE chatId = (:chatID) AND status != '2'")
-    fun getMyFailedMessages(chatID: String) : Flow<ChatMessage>
+    fun getMyFailedMessages(chatID: String) : Flow<List<ChatMessage>>
     /* ------------------------------------------------------------*/
 
 

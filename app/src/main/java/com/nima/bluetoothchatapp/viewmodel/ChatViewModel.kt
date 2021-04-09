@@ -60,15 +60,11 @@ class ChatViewModel @ViewModelInject constructor
         }
     }
 
-    fun getMyFailedMessages(chatID: String): List<Message?>? {
-        CoroutineScope(Dispatchers.IO).launch {
-            failedMessages =
-                repository.getMyFailedMessages(chatID).toList()
-        }
-        return failedMessages
+    fun getMyFailedMessages(chatID: String): Flow<List<Message?>>? {
+        return repository.getMyFailedMessages(chatID)
     }
 
-    suspend fun getAllMessages(chatID: String): Flow<List<Message?>>? {
+    fun getAllMessages(chatID: String): Flow<List<Message?>>? {
         return repository.getAllMessages(chatID)
     }
 

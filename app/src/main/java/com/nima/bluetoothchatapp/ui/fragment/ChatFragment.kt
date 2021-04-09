@@ -205,23 +205,24 @@ class ChatFragment : Fragment() {
 
     private fun handleConnectStatus() {
         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
-        //handleFailedMessages()
+        handleFailedMessages()
     }
 
     private fun handleFailedMessages() {
-        val failedMessages = viewMode.getMyFailedMessages(chatId)
-        failedMessages?.let { messages ->
-            if (messages.isNotEmpty()) {
-                messages.forEach {
-                    it?.let {
-                        sendMessage(
-                            MessageAck(
-                                isMe = it.content().isMe,
-                                status = it.content().status,
-                                UID = it.content().uId,
-                                content = it.content().content
+        CoroutineScope(Dispatchers.Main).launch {
+            viewMode.getMyFailedMessages(chatId)?.collect { it ->
+                if (it.isNotEmpty()){
+                    it.forEach {
+                        it?.let { message ->
+                            sendMessage(
+                                MessageAck(
+                                    isMe = message.content().isMe,
+                                    status = message.content().status,
+                                    UID = message.content().uId,
+                                    content = message.content().content
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }

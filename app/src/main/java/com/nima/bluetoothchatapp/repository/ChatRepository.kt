@@ -20,7 +20,7 @@ class ChatRepository @Inject constructor(private val myDao: MyDao) {
     }
 
     //get All Messages with ChatID
-    suspend fun getAllMessages(chatId: String): Flow<List<Message?>>? {
+    fun getAllMessages(chatId: String): Flow<List<Message?>>? {
         val messages = myDao.getMessages(chatId)
         return messages.map { chatMessageMapper.mapFromEntityList(it) }
 
@@ -40,8 +40,8 @@ class ChatRepository @Inject constructor(private val myDao: MyDao) {
         myDao.updateMyMessageStatus(state, uId, message)
     }
 
-    fun getMyFailedMessages(chatID: String): Flow<Message?> {
+    fun getMyFailedMessages(chatID: String): Flow<List<Message?>> {
         val failedMessages = myDao.getMyFailedMessages(chatID)
-        return failedMessages.map { chatMessageMapper.mapFromEntity(it) }
+        return failedMessages.map { chatMessageMapper.mapFromEntityList(it) }
     }
 }
