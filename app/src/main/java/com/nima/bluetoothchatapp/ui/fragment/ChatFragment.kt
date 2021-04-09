@@ -31,13 +31,9 @@ class ChatFragment : Fragment() {
     private var mSendButton: Button? = null
     private var chatId = "-1"
 
-    @Inject
-    lateinit var dao: MyDao
-
     private lateinit var randomUIDGenerator: RandomUIDGenerator
     private val viewMode: ChatViewModel by viewModels()
 
-    private lateinit var chatRepository: ChatRepository
 
 
     private var mConnectedDeviceName: String? = null
@@ -126,7 +122,6 @@ class ChatFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        chatRepository = ChatRepository(dao)
         mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button

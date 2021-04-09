@@ -22,4 +22,5 @@
     <string name="Device_Name">name</string>
     <string name="Device_Address">address</string>
     <string name="Device_last_Connection_date">2020/01/01</string>
+    <string name="there_is_no_chat">There Is No Chats Yet.</string>
 </resources>
