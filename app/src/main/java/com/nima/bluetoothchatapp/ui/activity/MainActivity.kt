@@ -13,10 +13,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentTransaction
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.nima.bluetoothchatapp.R
+import com.nima.bluetoothchatapp.service.BLDevice
 import com.nima.bluetoothchatapp.service.BluetoothChatService
-import com.nima.bluetoothchatapp.ui.fragment.ChatFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,18 +27,30 @@ class MainActivity : AppCompatActivity() {
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothDevice: BluetoothDevice? = null
     private var mChatService: BluetoothChatService? = null
+    private lateinit var pairedDevices : FloatingActionButton
     private val str: String = "BLUETOOTH_CHAT_APPLICATION"
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        pairedDevices = findViewById(R.id.btn_mainActivity_pairedDevices)
         checkForPermission()
         setBluetoothAdapter()
+        subscribeOnButtons()
         if (savedInstanceState == null){
 //            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
 //            val fragment = ChatFragment()
 //            transaction.replace(R.id.sample_content_fragment,fragment)
 //            transaction.commit()
+        }
+    }
+
+    private fun subscribeOnButtons() {
+        pairedDevices.setOnClickListener {
+            val blDevices = queryPairedDevices()
+            blDevices?.let {
+
+            }
         }
     }
 
@@ -60,20 +72,9 @@ class MainActivity : AppCompatActivity() {
         startActivity(discoverableIntent)
     }
 
-    private fun queryPairedDevices() {
+    private fun queryPairedDevices(): List<BLDevice>? {
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-        pairedDevices?.forEach { device ->
-            if (device.address == "38:D4:0B:DA:FF:FF") {
-                bluetoothDevice = device
-                //connectDevice(null, true)
-            }
-            val deviceName = device.name
-            val deviceHardwareAddress = device.address // MAC address
-            Log.d(
-                "TAG", "queryPairedDevices: deviceName : $deviceName ," +
-                        " MAC : $deviceHardwareAddress"
-            )
-        }
+        return pairedDevices?.map { BLDevice(it.name,it.address) }
     }
 
     private fun setBluetoothAdapter() {
