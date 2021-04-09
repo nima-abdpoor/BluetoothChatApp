@@ -3,6 +3,7 @@ package com.nima.bluetoothchatapp.ui.fragment
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -20,27 +21,24 @@ import com.nima.bluetoothchatapp.viewmodel.ChatListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ChatListFragment: Fragment(R.layout.fragment_chat_list), PairedDevicesDialogFragment.OnClick,ChatListAdapter.Interaction {
+class ChatListFragment : Fragment(R.layout.fragment_chat_list), PairedDevicesDialogFragment.OnClick,
+    ChatListAdapter.Interaction {
 
     private lateinit var chatListAdapter: ChatListAdapter
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private lateinit var emptyChatList : TextView
+    private lateinit var emptyChatList: TextView
     private lateinit var pairedDevices: FloatingActionButton
-    private lateinit var recycler : RecyclerView
+    private lateinit var recycler: RecyclerView
     private val viewMode: ChatListViewModel by viewModels()
     private var blDevices: List<BLDevice?>? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        getConnectedDevices()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         pairedDevices = view.findViewById(R.id.btn_mainActivity_pairedDevices)
         emptyChatList = view.findViewById(R.id.txt_chatListFragment_emptyList)
         recycler = view.findViewById(R.id.recycler_chatListF_items)
+        getConnectedDevices()
         initRecyclerView()
-        showConnectedDevices()
         subscribeOnButtons()
         setBluetoothAdapter()
     }
@@ -52,13 +50,11 @@ class ChatListFragment: Fragment(R.layout.fragment_chat_list), PairedDevicesDial
             adapter = chatListAdapter
         }
     }
-    private fun showConnectedDevices() {
-        blDevices?.let {
-            if (blDevices!!.isNotEmpty()){
-                submitDevices(it)
-            }else emptyChatList.visibility = View.VISIBLE
-        }
-        if (blDevices ==null) emptyChatList.visibility = View.VISIBLE
+
+    private fun showConnectedDevices(devices: List<BLDevice?>) {
+        if (devices.isNotEmpty()) {
+            submitDevices(devices)
+        } else emptyChatList.visibility = View.VISIBLE
     }
 
     private fun submitDevices(devices: List<BLDevice?>) {
@@ -66,16 +62,21 @@ class ChatListFragment: Fragment(R.layout.fragment_chat_list), PairedDevicesDial
     }
 
     private fun getConnectedDevices() {
-        val devices = viewMode.getConnectedDevices()
-        devices?.let {
-            blDevices = it
+        viewMode.getConnectedDevices().observe(viewLifecycleOwner) { device ->
+            blDevices = device
+            Log.d("TAG", "getConnectedDevices: $device")
+            showConnectedDevices(device)
         }
     }
 
     private fun setBluetoothAdapter() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter == null) {
-            Toast.makeText(requireContext(), "the device doesn't support Bluetooth!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "the device doesn't support Bluetooth!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -89,6 +90,15 @@ class ChatListFragment: Fragment(R.layout.fragment_chat_list), PairedDevicesDial
         }
     }
 
+    private fun insertDevice(item: BLDevice) {
+        blDevices?.let {
+            if (it.contains(item)) return else viewMode.insertConnectedDevice(item)
+        }
+        if (blDevices == null) {
+            viewMode.insertConnectedDevice(item)
+        }
+    }
+
     private fun queryPairedDevices(): List<BLDevice>? {
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
         return pairedDevices?.map { BLDevice(it.name, it.address) }
@@ -98,12 +108,14 @@ class ChatListFragment: Fragment(R.layout.fragment_chat_list), PairedDevicesDial
         val bundle = Bundle()
         bundle.putString(Constants.DEVICE_ADDRESS, item.deviceAddress)
         bundle.putString(Constants.DEVICE_NAME, item.deviceName)
-        findNavController().navigate(R.id.action_chatListFragment_to_chatFragment,bundle)
+        findNavController().navigate(R.id.action_chatListFragment_to_chatFragment, bundle)
     }
 
     override fun pairedDeviceSelected(position: Int, item: BLDevice) {
+        insertDevice(item)
         navigateToFragment(item)
     }
+
 
     override fun onItemSelected(position: Int, item: BLDevice) {
         navigateToFragment(item)
