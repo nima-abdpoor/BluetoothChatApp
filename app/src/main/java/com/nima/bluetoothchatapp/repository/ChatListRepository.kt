@@ -13,11 +13,16 @@ class ChatListRepository @Inject constructor(private val dao: MyDao) {
     @Inject
     lateinit var chatLisMapper: ChatListMapper
 
-    suspend fun getConnectedDevices() : Flow<BLDevice>? {
+    suspend fun getConnectedDevices(): Flow<BLDevice>? {
         val connectedDevices = dao.getConnectedDevices()
-        if (connectedDevices.count() != 0){
-            return connectedDevices.map { chatLisMapper.mapFromEntity(it)  }
+        if (connectedDevices.count() != 0) {
+            return connectedDevices.map { chatLisMapper.mapFromEntity(it) }
         }
         return null
+    }
+
+    fun insertConnectedDevice(blDevice: BLDevice) {
+        val device = chatLisMapper.mapToEntity(blDevice)
+        dao.insertConnectedDevices(device)
     }
 }

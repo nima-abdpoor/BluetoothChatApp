@@ -20,4 +20,10 @@ class ChatListViewModel @ViewModelInject constructor(
         }
         return allDevices
     }
+
+    fun insertConnectedDevice(blDevice: BLDevice) {
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.insertConnectedDevice(blDevice)
+        }
+    }
 }
