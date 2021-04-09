@@ -54,7 +54,7 @@ class ChatListAdapter(private val interaction: Interaction? = null) :
         return differ.currentList.size
     }
 
-    fun submitList(list: List<BLDevice>) {
+    fun submitList(list: List<BLDevice?>) {
         differ.submitList(list)
     }
 
@@ -69,12 +69,9 @@ class ChatListAdapter(private val interaction: Interaction? = null) :
             itemView.setOnClickListener {
                 interaction?.onItemSelected(bindingAdapterPosition, item)
             }
-            val deviceName = itemView.findViewById<TextView>(R.id.txt_modelPairedDev_name)
-            val deviceAddress = itemView.findViewById<TextView>(R.id.txt_modelPairedD_address)
-            val date = itemView.findViewById<TextView>(R.id.txt_modelPairedD_date)
-            deviceAddress.text = item.deviceAddress
+            val deviceName = itemView.findViewById<TextView>(R.id.txt_modelChatListF_deviceName)
+//            val date = itemView.findViewById<TextView>(R.id.txt_modelPairedD_date)
             deviceName.text = item.deviceName
-            date.text = item.date ?: ""
         }
     }
 

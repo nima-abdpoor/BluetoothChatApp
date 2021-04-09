@@ -28,7 +28,7 @@
         android:contentDescription="@string/paired_devices_action_button" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_pairedDevice_models"
+        android:id="@+id/recycler_chatListF_items"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
