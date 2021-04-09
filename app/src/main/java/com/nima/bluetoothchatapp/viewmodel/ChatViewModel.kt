@@ -1,11 +1,14 @@
 package com.nima.bluetoothchatapp.viewmodel
 
+import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import com.nima.bluetoothchatapp.chat.*
 import com.nima.bluetoothchatapp.repository.ChatRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -16,7 +19,7 @@ class ChatViewModel @ViewModelInject constructor
     (private val repository: ChatRepository) : ViewModel() {
 
     private var failedMessages: List<Message?>? = null
-    private var allMessages: List<Message?>? = null
+    private var allMessages: Flow<List<Message?>>? = null
 
     fun insertMessage(
         writeMessage: String,
@@ -65,11 +68,8 @@ class ChatViewModel @ViewModelInject constructor
         return failedMessages
     }
 
-    fun getAllMessages(chatID: String):List<Message?>? {
-        CoroutineScope(Dispatchers.IO).launch {
-            allMessages =
-                repository.getAllMessages(chatID)?.toList()
-        }
-        return allMessages
+    suspend fun getAllMessages(chatID: String): Flow<List<Message?>>? {
+        return repository.getAllMessages(chatID)
     }
+
 }

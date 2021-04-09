@@ -21,7 +21,7 @@ interface MyDao {
     fun getLastMessage(ID : Int): LiveData<List<ChatMessage>>
 
     @Query("SELECT * FROM ChatMessage WHERE chatId = (:chatID)")
-    fun getMessages(chatID : String): Flow<ChatMessage>
+    fun getMessages(chatID : String): Flow<List<ChatMessage>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(vararg message: ChatMessage)

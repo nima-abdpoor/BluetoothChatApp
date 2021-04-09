@@ -1,5 +1,6 @@
 package com.nima.bluetoothchatapp.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.nima.bluetoothchatapp.chat.Message
 import com.nima.bluetoothchatapp.chat.MessageStatus
@@ -19,12 +20,10 @@ class ChatRepository @Inject constructor(private val myDao: MyDao) {
     }
 
     //get All Messages with ChatID
-    suspend fun getAllMessages(chatId: String): Flow<Message?>? {
+    suspend fun getAllMessages(chatId: String): Flow<List<Message?>>? {
         val messages = myDao.getMessages(chatId)
-        if (messages.count() != 0){
-            return messages.map { chatMessageMapper.mapFromEntity(it)  }
-        }
-        return null
+        return messages.map { chatMessageMapper.mapFromEntityList(it) }
+
     }
 
     fun insert(message: Message) {
@@ -33,7 +32,7 @@ class ChatRepository @Inject constructor(private val myDao: MyDao) {
     }
 
     fun updateMyMessageStatus(status: MessageStatus, uId: String, message: String) {
-        val state = when(status){
+        val state = when (status) {
             is MessageStatus.MessageStatusNone -> "0"
             is MessageStatus.MessageStatusSeen -> "2"
             is MessageStatus.MessageStatusSend -> "1"

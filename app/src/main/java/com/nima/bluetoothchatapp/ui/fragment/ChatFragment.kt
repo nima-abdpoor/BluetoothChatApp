@@ -19,6 +19,11 @@ import com.nima.bluetoothchatapp.chat.MessageStatus
 import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
@@ -37,24 +42,10 @@ class ChatFragment : Fragment() {
     private var mConnectedDeviceAddress: String? = null
     private var myDeviceAddress: String? = null
 
-    /**
-     * Array adapter for the conversation thread
-     */
+
     private var mConversationArrayAdapter: ArrayAdapter<String>? = null
-
-    /**
-     * String buffer for outgoing messages
-     */
     private var mOutStringBuffer: StringBuffer? = null
-
-    /**
-     * Local Bluetooth adapter
-     */
     private var mBluetoothAdapter: BluetoothAdapter? = null
-
-    /**
-     * Member object for the chat services
-     */
     private var mChatService: BluetoothChatService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +53,7 @@ class ChatFragment : Fragment() {
         setHasOptionsMenu(true)
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
+        chatId = requireArguments().getString(Constants.DEVICE_ADDRESS,"") ?: "-1"
         // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
             val activity: FragmentActivity = requireActivity()
@@ -176,8 +167,14 @@ class ChatFragment : Fragment() {
 //        }
 //    }
     private fun getChatHistory(){
-        viewMode.getAllMessages(chatId)?.forEach { message ->
-            Log.d(TAG, "getChatHistory: $message")
+        CoroutineScope(Dispatchers.Main).launch {
+            viewMode.getAllMessages(chatId)?.collect {
+                withContext(Dispatchers.Main){
+                    it.forEach {
+                        Log.d(TAG, "getChatHistory: $it")
+                    }
+                }
+            }
         }
     }
 
@@ -208,7 +205,7 @@ class ChatFragment : Fragment() {
 
     private fun handleConnectStatus() {
         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
-        handleFailedMessages()
+        //handleFailedMessages()
     }
 
     private fun handleFailedMessages() {
