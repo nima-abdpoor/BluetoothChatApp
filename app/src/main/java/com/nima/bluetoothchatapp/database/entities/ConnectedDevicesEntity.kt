@@ -10,4 +10,5 @@ data class ConnectedDevices constructor(
     val chatId:String,
     var deviceName : String,
     var deviceAddress: String,
+    var date :String? = null
 )

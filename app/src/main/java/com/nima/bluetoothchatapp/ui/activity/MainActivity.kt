@@ -2,10 +2,8 @@ package com.nima.bluetoothchatapp.ui.activity
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -14,15 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentTransaction
-import androidx.navigation.findNavController
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.nima.bluetoothchatapp.Constants
 import com.nima.bluetoothchatapp.R
-import com.nima.bluetoothchatapp.service.BLDevice
-import com.nima.bluetoothchatapp.service.BluetoothChatService
-import com.nima.bluetoothchatapp.ui.fragment.ChatFragment
-import com.nima.bluetoothchatapp.ui.fragment.PairedDevicesDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

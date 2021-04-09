@@ -36,7 +36,7 @@ interface MyDao {
 
     //Devices
     @Query("SELECT * FROM connectedDevices")
-    fun getConnectedDevices() : LiveData<List<ConnectedDevices>>
+    fun getConnectedDevices() : Flow<ConnectedDevices>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertConnectedDevices(devices: ConnectedDevices)
 

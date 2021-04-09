@@ -7,5 +7,9 @@ import javax.inject.Inject
 class ChatListRepository @Inject constructor(private val dao: MyDao) {
 
     @Inject
-    lateinit var chatMessageMapper: ChatMessageMapper
+    lateinit var chatLisMapper: ChatMessageMapper
+
+    fun getConnectedDevices(){
+        dao.getConnectedDevices()
+    }
 }

@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.nima.bluetoothchatapp.R
 import com.nima.bluetoothchatapp.adapter.PairedDevicesAdapter
-import com.nima.bluetoothchatapp.service.BLDevice
+import com.nima.bluetoothchatapp.devices.BLDevice
 
 class PairedDevicesDialogFragment(
     private val onClick : OnClick,

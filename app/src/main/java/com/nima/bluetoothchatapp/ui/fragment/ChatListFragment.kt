@@ -10,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.nima.bluetoothchatapp.Constants
 import com.nima.bluetoothchatapp.R
-import com.nima.bluetoothchatapp.service.BLDevice
+import com.nima.bluetoothchatapp.devices.BLDevice
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

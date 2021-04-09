@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.nima.bluetoothchatapp.R
-import com.nima.bluetoothchatapp.service.BLDevice
+import com.nima.bluetoothchatapp.devices.BLDevice
 
 class PairedDevicesAdapter(private val interaction: Interaction? = null) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
