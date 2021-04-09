@@ -51,4 +51,10 @@ class ChatViewModel @ViewModelInject constructor
         val dateFormat = SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
         return dateFormat.format(currentDateTime.time).toString()
     }
+
+    fun updateMyMessageStatus(status: MessageStatus, uId: String, message: String){
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.updateMyMessageStatus(status, uId, message)
+        }
+    }
 }

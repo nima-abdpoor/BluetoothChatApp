@@ -211,6 +211,34 @@ class ChatFragment : Fragment() {
             mOutEditText!!.setText(mOutStringBuffer)
         }
     }
+    private fun handleReadMessage(readMessage: String) {
+        val mAck = readMessage.decode()
+        if (mAck.isMe) updateMyMessageStatus(mAck) else{
+            storeTheirMessage(mAck)
+            sendAck(mAck)
+            mConversationArrayAdapter!!.add("$mConnectedDeviceName:  ${mAck.content}")
+        }
+    }
+    private fun updateMyMessageStatus(mAck: MessageAck) {
+        mAck.apply {
+            viewMode.updateMyMessageStatus(status,UID,content)
+        }
+    }
+    private fun storeTheirMessage(mAck: MessageAck){
+        insertMessage(
+            writeMessage = mAck.content,
+            chatId =chatId,
+            uId = mAck.UID,
+            senderId = mConnectedDeviceAddress!!,
+            isMe = false,
+            fatherId = -1
+        )
+    }
+    private fun sendAck(message: MessageAck){
+        message.isMe = true
+        message.status = MessageStatus.MessageStatusSeen()
+        sendMessage(message)
+    }
 
     /**
      * The action listener for the EditText widget, to listen for the return key
@@ -274,7 +302,7 @@ class ChatFragment : Fragment() {
                     val readBuf = msg.obj as ByteArray
                     // construct a string from the valid bytes in the buffer
                     val readMessage = String(readBuf, 0, msg.arg1)
-                    mConversationArrayAdapter!!.add("$mConnectedDeviceName:  $readMessage")
+                    handleReadMessage(readMessage)
                 }
                 Constants.MESSAGE_DEVICE_NAME -> {
                     // save the connected device's name

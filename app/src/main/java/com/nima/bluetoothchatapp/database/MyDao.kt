@@ -26,6 +26,9 @@ interface MyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessage(vararg message: ChatMessage)
 
+    @Query("UPDATE ChatMessage SET status = (:status) WHERE uId = (:uId) AND content = (:message) AND status != (:status)")
+    fun updateMyMessageStatus(status : String,uId :String,message  :String)
+
 
     /* ------------------------------------------------------------*/
 
