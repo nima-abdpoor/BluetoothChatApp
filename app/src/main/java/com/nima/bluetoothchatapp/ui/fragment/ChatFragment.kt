@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import com.nima.bluetoothchatapp.*
+import com.nima.bluetoothchatapp.adapter.ChatAdapter
 import com.nima.bluetoothchatapp.chat.MessageAck
 import com.nima.bluetoothchatapp.chat.MessageStatus
 import com.nima.bluetoothchatapp.service.BluetoothChatService
@@ -32,6 +33,7 @@ class ChatFragment : Fragment() {
     private var mOutEditText: EditText? = null
     private var mSendButton: Button? = null
     private var chatId = "-1"
+    private lateinit var chatAdapter: ChatAdapter
 
     private lateinit var randomUIDGenerator: RandomUIDGenerator
     private val viewMode: ChatViewModel by viewModels()
@@ -66,40 +68,6 @@ class ChatFragment : Fragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        // If BT is not on, request that it be enabled.
-        // setupChat() will then be called during onActivityResult
-        if (!mBluetoothAdapter!!.isEnabled) {
-            val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT)
-            // Otherwise, setup the chat session
-        } else if (mChatService == null) {
-            setupChat()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (mChatService != null) {
-            mChatService!!.stop()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        // Performing this check in onResume() covers the case in which BT was
-        // not enabled during onStart(), so we were paused to enable it...
-        // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
-        if (mChatService != null) {
-            // Only if the state is STATE_NONE, do we know that we haven't started already
-            if (mChatService!!.state == BluetoothChatService.STATE_NONE) {
-                // Start the Bluetooth chat services
-                mChatService!!.start()
-            }
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -113,6 +81,7 @@ class ChatFragment : Fragment() {
         mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
+        init
         randomUIDGenerator = RandomUIDGenerator()
         getChatHistory()
     }
@@ -402,6 +371,31 @@ class ChatFragment : Fragment() {
             }
         }
         return false
+    }
+    override fun onStart() {
+        super.onStart()
+        if (!mBluetoothAdapter!!.isEnabled) {
+            val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT)
+        } else if (mChatService == null) {
+            setupChat()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (mChatService != null) {
+            mChatService!!.stop()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (mChatService != null) {
+            if (mChatService!!.state == BluetoothChatService.STATE_NONE) {
+                mChatService!!.start()
+            }
+        }
     }
 
     companion object {
