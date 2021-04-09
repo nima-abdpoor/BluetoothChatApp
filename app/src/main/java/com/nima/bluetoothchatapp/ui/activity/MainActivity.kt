@@ -35,10 +35,10 @@ class MainActivity : AppCompatActivity() {
         checkForPermission()
         setBluetoothAdapter()
         if (savedInstanceState == null){
-            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-            val fragment = ChatFragment()
-            transaction.replace(R.id.sample_content_fragment,fragment)
-            transaction.commit()
+//            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+//            val fragment = ChatFragment()
+//            transaction.replace(R.id.sample_content_fragment,fragment)
+//            transaction.commit()
         }
     }
 

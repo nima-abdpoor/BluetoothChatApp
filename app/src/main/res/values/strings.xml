@@ -18,4 +18,5 @@
     <string name="button_scan">Scan for devices</string>
 
     <string name="connect_device">Connect a device</string>
+    <string name="paired_devices_action_button">paired devices button</string>
 </resources>
