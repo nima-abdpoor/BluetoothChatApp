@@ -30,7 +30,6 @@ class ChatFragment : Fragment() {
     private var mOutEditText: EditText? = null
     private var mSendButton: Button? = null
     private var chatId = "-1"
-    private var myId = 1
 
     @Inject
     lateinit var dao: MyDao
@@ -38,7 +37,7 @@ class ChatFragment : Fragment() {
     private lateinit var randomUIDGenerator: RandomUIDGenerator
     private val viewMode: ChatViewModel by viewModels()
 
-    lateinit var chatRepository: ChatRepository
+    private lateinit var chatRepository: ChatRepository
 
 
     private var mConnectedDeviceName: String? = null
@@ -60,8 +59,6 @@ class ChatFragment : Fragment() {
      */
     private var mBluetoothAdapter: BluetoothAdapter? = null
 
-    private var latestId: Int = 0
-
     /**
      * Member object for the chat services
      */
@@ -78,11 +75,10 @@ class ChatFragment : Fragment() {
             val activity: FragmentActivity = requireActivity()
             Toast.makeText(activity, "Bluetooth is not available", Toast.LENGTH_LONG).show()
             activity.finish()
-        }
-        else{
-          mBluetoothAdapter?.let {
-              myDeviceAddress = it.address
-          }
+        } else {
+            mBluetoothAdapter?.let {
+                myDeviceAddress = it.address
+            }
         }
     }
 
@@ -211,39 +207,69 @@ class ChatFragment : Fragment() {
             mOutEditText!!.setText(mOutStringBuffer)
         }
     }
-    private fun handleWriteMessage(mAck: MessageAck){
-        if (mAck.status == MessageStatus.MessageStatusNone()){
+
+    private fun handleConnectStatus() {
+        setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
+        handleFailedMessages()
+    }
+
+    private fun handleFailedMessages() {
+        val failedMessages = viewMode.getMyFailedMessages(chatId)
+        failedMessages?.let { messages ->
+            if (messages.isNotEmpty()) {
+                messages.forEach {
+                    it?.let {
+                        sendMessage(
+                            MessageAck(
+                                isMe = it.content().isMe,
+                                status = it.content().status,
+                                UID = it.content().uId,
+                                content = it.content().content
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handleWriteMessage(mAck: MessageAck) {
+        if (mAck.status == MessageStatus.MessageStatusNone()) {
             mConversationArrayAdapter!!.add("Me:  ${mAck.content}")
             insertMessage(mAck.content, chatId, mAck.UID, myDeviceAddress!!, true, -1)
         }
     }
+
     private fun handleReadMessage(readMessage: String) {
         val mAck = readMessage.decode()
         if (mAck.status == MessageStatus.MessageStatusSeen()) {
             updateMyMessageStatus(mAck)
-        } else{
+        } else {
             Log.d(TAG, "handleReadMessage: $readMessage")
             storeTheirMessage(mAck)
             sendAck(mAck)
             mConversationArrayAdapter!!.add("$mConnectedDeviceName:  ${mAck.content}")
         }
     }
+
     private fun updateMyMessageStatus(mAck: MessageAck) {
         mAck.apply {
-            viewMode.updateMyMessageStatus(status,UID,content)
+            viewMode.updateMyMessageStatus(status, UID, content)
         }
     }
-    private fun storeTheirMessage(mAck: MessageAck){
+
+    private fun storeTheirMessage(mAck: MessageAck) {
         insertMessage(
             writeMessage = mAck.content,
-            chatId =chatId,
+            chatId = chatId,
             uId = mAck.UID,
             senderId = mConnectedDeviceAddress!!,
             isMe = false,
             fatherId = -1
         )
     }
-    private fun sendAck(message: MessageAck){
+
+    private fun sendAck(message: MessageAck) {
         message.isMe = false
         message.status = MessageStatus.MessageStatusSeen()
         sendMessage(message)
@@ -291,9 +317,7 @@ class ChatFragment : Fragment() {
             when (msg.what) {
                 Constants.MESSAGE_STATE_CHANGE -> when (msg.arg1) {
                     BluetoothChatService.STATE_CONNECTED -> {
-                        setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
-
-                        mConversationArrayAdapter!!.clear()
+                        handleConnectStatus()
                     }
                     BluetoothChatService.STATE_CONNECTING -> setStatus(R.string.title_connecting)
                     BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> setStatus(
