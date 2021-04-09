@@ -9,4 +9,8 @@ data class Content(
     var senderId : String,
     var isMe : Boolean,
     var status :MessageStatus
-)
+) {
+    override fun toString(): String {
+        return "Content(id=$id, chatId='$chatId', time='$time', uId='$uId', content='$content', senderId='$senderId', isMe=$isMe, status=$status)"
+    }
+}

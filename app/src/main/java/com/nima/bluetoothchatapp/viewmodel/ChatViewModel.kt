@@ -6,8 +6,6 @@ import com.nima.bluetoothchatapp.chat.*
 import com.nima.bluetoothchatapp.repository.ChatRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -15,10 +13,11 @@ import java.util.*
 
 
 class ChatViewModel @ViewModelInject constructor
-    (private val repository: ChatRepository)
-    : ViewModel(){
+    (private val repository: ChatRepository) : ViewModel() {
 
-    private var failedMessages : List<Message?>? = null
+    private var failedMessages: List<Message?>? = null
+    private var allMessages: List<Message?>? = null
+
     fun insertMessage(
         writeMessage: String,
         chatId: String,
@@ -45,23 +44,32 @@ class ChatViewModel @ViewModelInject constructor
             repository.insert(message)
         }
     }
-    private fun getTimeCurrent() : String{
+
+    private fun getTimeCurrent(): String {
         val currentDateTime = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
         return dateFormat.format(currentDateTime.time).toString()
     }
 
-    fun updateMyMessageStatus(status: MessageStatus, uId: String, message: String){
+    fun updateMyMessageStatus(status: MessageStatus, uId: String, message: String) {
         CoroutineScope(Dispatchers.IO).launch {
             repository.updateMyMessageStatus(status, uId, message)
         }
     }
 
-    fun getMyFailedMessages(chatID: String) : List<Message?>? {
+    fun getMyFailedMessages(chatID: String): List<Message?>? {
         CoroutineScope(Dispatchers.IO).launch {
             failedMessages =
                 repository.getMyFailedMessages(chatID).toList()
         }
         return failedMessages
+    }
+
+    fun getAllMessages(chatID: String):List<Message?>? {
+        CoroutineScope(Dispatchers.IO).launch {
+            allMessages =
+                repository.getAllMessages(chatID).toList()
+        }
+        return allMessages
     }
 }

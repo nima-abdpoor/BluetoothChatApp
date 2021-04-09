@@ -182,6 +182,11 @@ class ChatFragment : Fragment() {
 //            startActivity(discoverableIntent)
 //        }
 //    }
+    private fun getChatHistory(){
+        viewMode.getAllMessages(chatId)?.forEach { message ->
+            Log.d(TAG, "getChatHistory: $message")
+        }
+    }
 
     private fun insertMessage(
         writeMessage: String,
@@ -210,6 +215,7 @@ class ChatFragment : Fragment() {
 
     private fun handleConnectStatus() {
         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
+        getChatHistory()
         handleFailedMessages()
     }
 

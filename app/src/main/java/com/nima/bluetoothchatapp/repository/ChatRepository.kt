@@ -22,8 +22,8 @@ class ChatRepository @Inject constructor(private val myDao: MyDao) {
     }
 
     //get All Messages with ChatID
-    fun getAllMessages(chatId: String): Flow<List<ChatMessage>> {
-        return myDao.getMessages(chatId)
+    fun getAllMessages(chatId: String): Flow<Message?> {
+        return myDao.getMessages(chatId).map { chatMessageMapper.mapFromEntity(it) }
     }
 
     fun insert(message: Message) {
