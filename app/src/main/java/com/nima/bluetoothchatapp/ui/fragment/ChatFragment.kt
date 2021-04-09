@@ -379,12 +379,13 @@ class ChatFragment : Fragment() {
     }
 
     private fun connectDevice(data: Intent, secure: Boolean) {
-        // Get the device MAC address
         val address = data.extras?.getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS)
-        // Get the BluetoothDevice object
         val device = mBluetoothAdapter!!.getRemoteDevice(address)
-        // Attempt to connect to the device
         mChatService!!.connect(device, secure)
+    }
+    private fun connectDevice() {
+        val device = mBluetoothAdapter!!.getRemoteDevice(chatId)
+        mChatService!!.connect(device, true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -394,8 +395,9 @@ class ChatFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.connect_scan -> {
-                val serverIntent = Intent(activity, DeviceListActivity::class.java)
-                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE)
+//                val serverIntent = Intent(activity, DeviceListActivity::class.java)
+//                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE)
+                connectDevice()
                 return true
             }
         }
