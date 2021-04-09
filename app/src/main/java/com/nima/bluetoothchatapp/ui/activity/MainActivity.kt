@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,22 +14,28 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.nima.bluetoothchatapp.Constants
 import com.nima.bluetoothchatapp.R
 import com.nima.bluetoothchatapp.service.BLDevice
 import com.nima.bluetoothchatapp.service.BluetoothChatService
+import com.nima.bluetoothchatapp.ui.fragment.ChatFragment
+import com.nima.bluetoothchatapp.ui.fragment.PairedDevicesDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PairedDevicesDialogFragment.OnClick {
 
+    private val TAG = "MainActivity"
     private val PERMISSION_CODE = 100
     private val REQUEST_ENABLE_BT = 101
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothDevice: BluetoothDevice? = null
     private var mChatService: BluetoothChatService? = null
-    private lateinit var pairedDevices : FloatingActionButton
+    private lateinit var pairedDevices: FloatingActionButton
     private val str: String = "BLUETOOTH_CHAT_APPLICATION"
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,21 +44,26 @@ class MainActivity : AppCompatActivity() {
         checkForPermission()
         setBluetoothAdapter()
         subscribeOnButtons()
-        if (savedInstanceState == null){
-//            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-//            val fragment = ChatFragment()
-//            transaction.replace(R.id.sample_content_fragment,fragment)
-//            transaction.commit()
-        }
     }
 
     private fun subscribeOnButtons() {
         pairedDevices.setOnClickListener {
             val blDevices = queryPairedDevices()
             blDevices?.let {
-
+                val pairedDevicesDialogFragment = PairedDevicesDialogFragment(this, it)
+                pairedDevicesDialogFragment.show(supportFragmentManager, "FromMainActivityToPaired")
             }
         }
+    }
+
+    private fun navigateToFragment(item: BLDevice) {
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        val fragment = ChatFragment()
+        val bundle = Bundle()
+        bundle.putString(Constants.DEVICE_ADDRESS, item.deviceAddress)
+        bundle.putString(Constants.DEVICE_NAME, item.deviceName)
+        transaction.add(fragment::class.java,bundle,"MainActivity")
+        transaction.commit()
     }
 
 //    private fun setupChat() {
@@ -74,7 +86,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun queryPairedDevices(): List<BLDevice>? {
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-        return pairedDevices?.map { BLDevice(it.name,it.address) }
+        return pairedDevices?.map { BLDevice(it.name, it.address) }
     }
 
     private fun setBluetoothAdapter() {
@@ -132,5 +144,9 @@ class MainActivity : AppCompatActivity() {
                 mChatService!!.start()
             }
         }
+    }
+
+    override fun pairedDeviceSelected(position: Int, item: BLDevice) {
+        navigateToFragment(item)
     }
 }

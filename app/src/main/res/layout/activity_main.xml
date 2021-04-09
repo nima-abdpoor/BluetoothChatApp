@@ -6,10 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.MainActivity">
 
-    <FrameLayout
-        android:id="@+id/sample_content_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_mainActivity_pairedDevices"
@@ -20,5 +16,10 @@
         android:layout_alignParentEnd="true"
         android:src="@drawable/ic_create_chat_foreground"
         android:contentDescription="@string/paired_devices_action_button" />
+
+    <FrameLayout
+        android:id="@+id/sample_content_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </RelativeLayout>
