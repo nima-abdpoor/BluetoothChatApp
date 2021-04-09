@@ -6,10 +6,7 @@ import com.nima.bluetoothchatapp.chat.MessageStatus
 import com.nima.bluetoothchatapp.database.MyDao
 import com.nima.bluetoothchatapp.database.entities.ChatMessage
 import com.nima.bluetoothchatapp.mapper.ChatMessageMapper
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class ChatRepository @Inject constructor(private val myDao: MyDao) {
@@ -22,8 +19,12 @@ class ChatRepository @Inject constructor(private val myDao: MyDao) {
     }
 
     //get All Messages with ChatID
-    fun getAllMessages(chatId: String): Flow<Message?> {
-        return myDao.getMessages(chatId).map { chatMessageMapper.mapFromEntity(it) }
+    suspend fun getAllMessages(chatId: String): Flow<Message?>? {
+        val messages = myDao.getMessages(chatId)
+        if (messages.count() != 0){
+            return messages.map { chatMessageMapper.mapFromEntity(it)  }
+        }
+        return null
     }
 
     fun insert(message: Message) {

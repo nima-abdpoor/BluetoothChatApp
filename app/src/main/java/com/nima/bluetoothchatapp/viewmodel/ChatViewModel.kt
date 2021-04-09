@@ -68,7 +68,7 @@ class ChatViewModel @ViewModelInject constructor
     fun getAllMessages(chatID: String):List<Message?>? {
         CoroutineScope(Dispatchers.IO).launch {
             allMessages =
-                repository.getAllMessages(chatID).toList()
+                repository.getAllMessages(chatID)?.toList()
         }
         return allMessages
     }

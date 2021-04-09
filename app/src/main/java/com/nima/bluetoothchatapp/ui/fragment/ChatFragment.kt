@@ -131,6 +131,7 @@ class ChatFragment : Fragment() {
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
         randomUIDGenerator = RandomUIDGenerator()
+        getChatHistory()
     }
 
     private fun setupChat() {
@@ -215,7 +216,6 @@ class ChatFragment : Fragment() {
 
     private fun handleConnectStatus() {
         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
-        getChatHistory()
         handleFailedMessages()
     }
 
