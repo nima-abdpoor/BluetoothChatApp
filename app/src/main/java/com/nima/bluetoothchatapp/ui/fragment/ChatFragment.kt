@@ -16,12 +16,9 @@ import androidx.fragment.app.viewModels
 import com.nima.bluetoothchatapp.*
 import com.nima.bluetoothchatapp.chat.MessageAck
 import com.nima.bluetoothchatapp.chat.MessageStatus
-import com.nima.bluetoothchatapp.database.MyDao
-import com.nima.bluetoothchatapp.repository.ChatRepository
 import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
