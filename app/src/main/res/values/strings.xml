@@ -19,4 +19,7 @@
 
     <string name="connect_device">Connect a device</string>
     <string name="paired_devices_action_button">paired devices button</string>
+    <string name="Device_Name">name</string>
+    <string name="Device_Address">address</string>
+    <string name="Device_last_Connection_date">2020/01/01</string>
 </resources>
