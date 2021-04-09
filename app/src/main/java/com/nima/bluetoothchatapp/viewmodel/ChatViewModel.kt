@@ -35,9 +35,7 @@ class ChatViewModel @ViewModelInject constructor
                 writeMessage,
                 senderId,
                 isMe,
-                MessageStatus.MessageStatusSend(
-                    Integer.parseInt(chatId)
-                )
+                MessageStatus.MessageStatusSend()
             ),
             father = Father(fatherId),
             child = null

@@ -154,13 +154,13 @@ class ChatFragment : Fragment() {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
                 val message = textView.text.toString()
                 val m = MessageAck(
-                    true,
+                    false,
                     MessageStatus.MessageStatusNone(),
                     randomUIDGenerator.generate(),
                     message
                 )
                 sendMessage(m)
-                insertMessage(message, chatId, m.UID, myDeviceAddress!!, true, -1)
+                //insertMessage(message, chatId, m.UID, myDeviceAddress!!, true, -1)
             }
         }
 
@@ -187,7 +187,7 @@ class ChatFragment : Fragment() {
 //        }
 //    }
 
-    fun insertMessage(
+    private fun insertMessage(
         writeMessage: String,
         chatId: String,
         uId: String,
@@ -211,9 +211,18 @@ class ChatFragment : Fragment() {
             mOutEditText!!.setText(mOutStringBuffer)
         }
     }
+    private fun handleWriteMessage(mAck: MessageAck){
+        if (mAck.status == MessageStatus.MessageStatusNone()){
+            mConversationArrayAdapter!!.add("Me:  ${mAck.content}")
+            insertMessage(mAck.content, chatId, mAck.UID, myDeviceAddress!!, true, -1)
+        }
+    }
     private fun handleReadMessage(readMessage: String) {
         val mAck = readMessage.decode()
-        if (mAck.isMe) updateMyMessageStatus(mAck) else{
+        if (mAck.status == MessageStatus.MessageStatusSeen()) {
+            updateMyMessageStatus(mAck)
+        } else{
+            Log.d(TAG, "handleReadMessage: $readMessage")
             storeTheirMessage(mAck)
             sendAck(mAck)
             mConversationArrayAdapter!!.add("$mConnectedDeviceName:  ${mAck.content}")
@@ -235,7 +244,7 @@ class ChatFragment : Fragment() {
         )
     }
     private fun sendAck(message: MessageAck){
-        message.isMe = true
+        message.isMe = false
         message.status = MessageStatus.MessageStatusSeen()
         sendMessage(message)
     }
@@ -295,8 +304,8 @@ class ChatFragment : Fragment() {
                     val writeBuf = msg.obj as ByteArray
                     // construct a string from the buffer
                     val writeMessage = String(writeBuf)
-                    mConversationArrayAdapter!!.add("Me:  $writeMessage")
-                    insertMessage(writeMessage, chatId, writeMessage.decode().UID, myDeviceAddress!!, true, -1)
+                    val message = writeMessage.decode()
+                    handleWriteMessage(message)
                 }
                 Constants.MESSAGE_READ -> {
                     val readBuf = msg.obj as ByteArray

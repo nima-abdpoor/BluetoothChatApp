@@ -17,10 +17,10 @@ fun String.decode(): MessageAck {
         m = this.substring(1, 2)
         when (m) {
             "0" -> {
-                status = MessageStatus.MessageStatusNone(0)
+                status = MessageStatus.MessageStatusNone()
             }
             "1" -> {
-                status = MessageStatus.MessageStatusSeen(0)
+                status = MessageStatus.MessageStatusSeen()
             }
         }
         uId = this.substring(2, 6)
