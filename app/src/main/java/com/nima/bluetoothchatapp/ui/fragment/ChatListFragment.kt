@@ -11,7 +11,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.nima.bluetoothchatapp.Constants
 import com.nima.bluetoothchatapp.R
 import com.nima.bluetoothchatapp.service.BLDevice
-import com.nima.bluetoothchatapp.service.BluetoothChatService
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
