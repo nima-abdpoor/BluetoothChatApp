@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
+import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.nima.bluetoothchatapp.Constants
 import com.nima.bluetoothchatapp.R
@@ -25,70 +26,19 @@ import com.nima.bluetoothchatapp.ui.fragment.PairedDevicesDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), PairedDevicesDialogFragment.OnClick {
-
-    private val TAG = "MainActivity"
+class MainActivity : AppCompatActivity() {
+    d
     private val PERMISSION_CODE = 100
     private val REQUEST_ENABLE_BT = 101
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private var bluetoothDevice: BluetoothDevice? = null
-    private var mChatService: BluetoothChatService? = null
-    private lateinit var pairedDevices: FloatingActionButton
-    private val str: String = "BLUETOOTH_CHAT_APPLICATION"
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        pairedDevices = findViewById(R.id.btn_mainActivity_pairedDevices)
         checkForPermission()
         setBluetoothAdapter()
-        subscribeOnButtons()
     }
-
-    private fun subscribeOnButtons() {
-        pairedDevices.setOnClickListener {
-            val blDevices = queryPairedDevices()
-            blDevices?.let {
-                val pairedDevicesDialogFragment = PairedDevicesDialogFragment(this, it)
-                pairedDevicesDialogFragment.show(supportFragmentManager, "FromMainActivityToPaired")
-            }
-        }
-    }
-
-    private fun navigateToFragment(item: BLDevice) {
-        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        val fragment = ChatFragment()
-        val bundle = Bundle()
-        bundle.putString(Constants.DEVICE_ADDRESS, item.deviceAddress)
-        bundle.putString(Constants.DEVICE_NAME, item.deviceName)
-        transaction.add(fragment::class.java,bundle,"MainActivity")
-        transaction.commit()
-    }
-
-//    private fun setupChat() {
-//
-//        // Initialize the BluetoothChatService to perform bluetooth connections
-//        mChatService = BluetoothChatService(this, mHandler)
-//
-//        // Initialize the buffer for outgoing messages
-//        mOutStringBuffer = StringBuffer("")
-//    }
-
-
-    private fun enableDiscoverability() {
-        val discoverableIntent: Intent =
-            Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
-                putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
-            }
-        startActivity(discoverableIntent)
-    }
-
-    private fun queryPairedDevices(): List<BLDevice>? {
-        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
-        return pairedDevices?.map { BLDevice(it.name, it.address) }
-    }
-
     private fun setBluetoothAdapter() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter == null) {
@@ -120,7 +70,6 @@ class MainActivity : AppCompatActivity(), PairedDevicesDialogFragment.OnClick {
             REQUEST_ENABLE_BT -> {
                 when (resultCode) {
                     RESULT_OK -> {
-                        queryPairedDevices()
                     }
                     RESULT_CANCELED -> {
                         finish()
@@ -128,25 +77,5 @@ class MainActivity : AppCompatActivity(), PairedDevicesDialogFragment.OnClick {
                 }
             }
         }
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-
-        // Performing this check in onResume() covers the case in which BT was
-        // not enabled during onStart(), so we were paused to enable it...
-        // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
-        if (mChatService != null) {
-            // Only if the state is STATE_NONE, do we know that we haven't started already
-            if (mChatService!!.state == BluetoothChatService.STATE_NONE) {
-                // Start the Bluetooth chat services
-                mChatService!!.start()
-            }
-        }
-    }
-
-    override fun pairedDeviceSelected(position: Int, item: BLDevice) {
-        navigateToFragment(item)
     }
 }
