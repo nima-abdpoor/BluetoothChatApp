@@ -7,6 +7,9 @@ import com.nima.bluetoothchatapp.database.MyDao
 import com.nima.bluetoothchatapp.database.entities.ChatMessage
 import com.nima.bluetoothchatapp.mapper.ChatMessageMapper
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ChatRepository @Inject constructor(private val myDao: MyDao) {
@@ -35,5 +38,10 @@ class ChatRepository @Inject constructor(private val myDao: MyDao) {
             is MessageStatus.MessageStatusSend -> "1"
         }
         myDao.updateMyMessageStatus(state, uId, message)
+    }
+
+    fun getMyFailedMessages(chatID: String): Flow<Message?> {
+        val failedMessages = myDao.getMyFailedMessages(chatID)
+        return failedMessages.map { chatMessageMapper.mapFromEntity(it) }
     }
 }

@@ -2,13 +2,11 @@ package com.nima.bluetoothchatapp.viewmodel
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
-import com.nima.bluetoothchatapp.chat.Content
-import com.nima.bluetoothchatapp.chat.Father
-import com.nima.bluetoothchatapp.chat.MessageStatus
-import com.nima.bluetoothchatapp.chat.Text
+import com.nima.bluetoothchatapp.chat.*
 import com.nima.bluetoothchatapp.repository.ChatRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -18,6 +16,7 @@ class ChatViewModel @ViewModelInject constructor
     (private val repository: ChatRepository)
     : ViewModel(){
 
+    private var failedMessages : Flow<Message?>? = null
     fun insertMessage(
         writeMessage: String,
         chatId: String,
@@ -54,5 +53,12 @@ class ChatViewModel @ViewModelInject constructor
         CoroutineScope(Dispatchers.IO).launch {
             repository.updateMyMessageStatus(status, uId, message)
         }
+    }
+
+    fun getMyFailedMessages(chatID: String) : Flow<Message?>? {
+        CoroutineScope(Dispatchers.IO).launch {
+            failedMessages = repository.getMyFailedMessages(chatID)
+        }
+        return failedMessages
     }
 }
