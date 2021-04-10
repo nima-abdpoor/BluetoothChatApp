@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.nima.bluetoothchatapp.R
 import com.nima.bluetoothchatapp.chat.Message
+import com.nima.bluetoothchatapp.chat.MessageStatus
 
 class ChatAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -68,9 +70,11 @@ class ChatAdapter() :
 
         private lateinit var relativeLayout : RelativeLayout
         private lateinit var message : TextView
+        private lateinit var state : ImageView
         fun bind(item: Message) = with(itemView) {
             relativeLayout =findViewById(R.id.rl_chatItem_layout)
             message  =findViewById(R.id.txt_chatItem_content)
+            state  =findViewById(R.id.img_chatItem_status)
             item.content().apply {
                 if (isMe) {
                     (relativeLayout.layoutParams as FrameLayout.LayoutParams).gravity = Gravity.END
@@ -81,6 +85,11 @@ class ChatAdapter() :
                     relativeLayout.background = ResourcesCompat.getDrawable(resources,R.drawable.chat_message_guest,null)
                 }
                 message.text = content
+                when(status){
+                    is MessageStatus.MessageStatusNone -> {state.setImageResource(R.drawable.ic_status_none)}
+                    is MessageStatus.MessageStatusSend -> {state.setImageResource(R.drawable.ic_status_sent)}
+                    is MessageStatus.MessageStatusSeen -> {state.setImageResource(R.drawable.ic_status_seen)}
+                }
             }
         }
     }
