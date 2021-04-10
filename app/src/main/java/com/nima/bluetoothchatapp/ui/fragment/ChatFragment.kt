@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.*
 import android.os.Message
+import android.os.health.UidHealthStats
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -197,11 +198,17 @@ class ChatFragment : Fragment() {
 
     private fun sendMessage(message: MessageAck) {
         if (mChatService!!.state != BluetoothChatService.STATE_CONNECTED) {
-            Toast.makeText(activity, R.string.not_connected, Toast.LENGTH_SHORT).show()
+            message.apply {
+                if (content.isNotEmpty()){
+                    insertMessage(content,chatId,UID,chatId,status,true,-1)
+                }
+            }
             return
         }
-        val m = message.content
-        if (m.isNotEmpty()) {
+        writeMessage(message)
+    }
+    private fun writeMessage(message : MessageAck){
+        if (message.content.isNotEmpty()) {
             Log.d(TAG, "sendMessagealdkfsj: ${message.encode()}")
             val send = message.encode().toByteArray()
             mChatService!!.write(send)
