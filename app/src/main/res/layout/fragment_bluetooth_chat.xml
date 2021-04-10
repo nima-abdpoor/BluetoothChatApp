@@ -5,6 +5,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
+    <Button
+        android:id="@+id/btn_chatF_connectionState"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:text="@string/title_not_connected"
+        android:background="@drawable/button_rounded"
+        android:fontFamily="sans-serif-condensed-medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="15dp"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="visible"
+        />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/bottom_sheet"

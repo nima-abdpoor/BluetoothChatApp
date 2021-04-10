@@ -34,6 +34,7 @@ class ChatFragment : Fragment() {
     private var mConversationView: ListView? = null
     private var mOutEditText: EditText? = null
     private var mSendButton: Button? = null
+    private lateinit var connectionState : Button
     private var chatId = "-1"
     private lateinit var chatAdapter: ChatAdapter
 
@@ -83,12 +84,27 @@ class ChatFragment : Fragment() {
         //mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
+        connectionState = view.findViewById(R.id.btn_chatF_connectionState) as Button
+        subscribeOnButtons()
         recycler = view.findViewById(R.id.recycler_chatF_items)
         initRecyclerView()
         randomUIDGenerator = RandomUIDGenerator()
         getChatHistory()
     }
 
+    private fun subscribeOnButtons() {
+        connectionState.setOnClickListener {
+            connectDevice()
+            it.visibility = View.GONE
+        }
+    }
+    private fun changeStatus(state : String){
+        connectionState.apply {
+            Log.d(TAG, "changeStatus: $state")
+            text = state
+            visibility = View.VISIBLE
+        }
+    }
 
     private fun initRecyclerView() {
         recycler.apply {
@@ -195,6 +211,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun handleConnectStatus() {
+        connectionState.visibility = View.GONE
         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
         handleFailedMessages()
     }
@@ -311,10 +328,14 @@ class ChatFragment : Fragment() {
                     BluetoothChatService.STATE_CONNECTED -> {
                         handleConnectStatus()
                     }
-                    BluetoothChatService.STATE_CONNECTING -> setStatus(R.string.title_connecting)
-                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> setStatus(
-                        R.string.title_not_connected
-                    )
+                    BluetoothChatService.STATE_CONNECTING -> {
+                        setStatus(R.string.title_connecting)
+                        changeStatus(resources.getString(R.string.title_connecting))
+                    }
+                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> {
+                        setStatus(R.string.title_not_connected)
+                        changeStatus(resources.getString(R.string.title_not_connected))
+                    }
                 }
                 Constants.MESSAGE_WRITE -> {
                     val writeBuf = msg.obj as ByteArray
@@ -413,6 +434,13 @@ class ChatFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (mChatService != null) {
+            mChatService!!.stop()
+        }
+    }
+
+    override fun onDestroyOptionsMenu() {
+        super.onDestroyOptionsMenu()
         if (mChatService != null) {
             mChatService!!.stop()
         }
