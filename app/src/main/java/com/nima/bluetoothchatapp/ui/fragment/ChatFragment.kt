@@ -41,7 +41,6 @@ class ChatFragment : Fragment() {
     private val viewMode: ChatViewModel by viewModels()
 
 
-
     private var mConnectedDeviceName: String? = null
     private var mConnectedDeviceAddress: String? = null
     private var myDeviceAddress: String? = null
@@ -58,7 +57,7 @@ class ChatFragment : Fragment() {
         setHasOptionsMenu(true)
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        chatId = requireArguments().getString(Constants.DEVICE_ADDRESS,"") ?: "-1"
+        chatId = requireArguments().getString(Constants.DEVICE_ADDRESS, "") ?: "-1"
         // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
             val activity: FragmentActivity = requireActivity()
@@ -90,16 +89,6 @@ class ChatFragment : Fragment() {
         getChatHistory()
     }
 
-    private fun createFakeData() {
-        val m = listOf<com.nima.bluetoothchatapp.chat.Message>(
-            Text(Content(0,"","12:32","","salam","",true,MessageStatus.MessageStatusNone()), Father(0),null),
-            Text(Content(0,"","12:32","","salaksjfdlam","",false,MessageStatus.MessageStatusSeen()), Father(0),null),
-            Text(Content(0,"","12:32","","saaslkdfjlsdjflaskjflsaflam","",false,MessageStatus.MessageStatusSend()), Father(0),null),
-            Text(Content(0,"","12:32","",".","",true,MessageStatus.MessageStatusNone()), Father(0),null),
-            Text(Content(0,"","12:32","","سلام","",false,MessageStatus.MessageStatusSeen()), Father(0),null)
-        )
-        showMessages(m)
-    }
 
     private fun initRecyclerView() {
         recycler.apply {
@@ -108,8 +97,9 @@ class ChatFragment : Fragment() {
             adapter = chatAdapter
         }
     }
-    private fun showMessages(messages  :List<com.nima.bluetoothchatapp.chat.Message?>){
-        if (messages.isEmpty()){
+
+    private fun showMessages(messages: List<com.nima.bluetoothchatapp.chat.Message?>) {
+        if (messages.isEmpty()) {
 
         }
         chatAdapter.submitList(messages)
@@ -132,7 +122,7 @@ class ChatFragment : Fragment() {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
                 val message = textView.text.toString()
                 val m = MessageAck(
-                    false,
+                    true,
                     MessageStatus.MessageStatusNone(),
                     randomUIDGenerator.generate(),
                     message
@@ -164,11 +154,11 @@ class ChatFragment : Fragment() {
 //            startActivity(discoverableIntent)
 //        }
 //    }
-    private fun getChatHistory(){
+    private fun getChatHistory() {
         CoroutineScope(Dispatchers.Main).launch {
             viewMode.getAllMessages(chatId)?.collect {
                 showMessages(it)
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     it.forEach {
                         Log.d(TAG, "getChatHistory: $it")
                     }
@@ -182,10 +172,11 @@ class ChatFragment : Fragment() {
         chatId: String,
         uId: String,
         senderId: String,
+        status :MessageStatus,
         isMe: Boolean,
         fatherId: Int
     ) {
-        viewMode.insertMessage(writeMessage, chatId, uId, senderId, isMe, fatherId)
+        viewMode.insertMessage(writeMessage, chatId, uId, senderId, isMe, fatherId,status)
     }
 
     private fun sendMessage(message: MessageAck) {
@@ -195,6 +186,7 @@ class ChatFragment : Fragment() {
         }
         val m = message.content
         if (m.isNotEmpty()) {
+            Log.d(TAG, "sendMessagealdkfsj: ${message.encode()}")
             val send = message.encode().toByteArray()
             mChatService!!.write(send)
             mOutStringBuffer!!.setLength(0)
@@ -204,19 +196,21 @@ class ChatFragment : Fragment() {
 
     private fun handleConnectStatus() {
         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
-        //handleFailedMessages()
+        handleFailedMessages()
     }
 
     private fun handleFailedMessages() {
-        CoroutineScope(Dispatchers.Main).launch {
-            viewMode.getMyFailedMessages(chatId)?.collect { it ->
-                if (it.isNotEmpty()){
-                    it.forEach {
+        CoroutineScope(Dispatchers.IO).launch {
+            val messages = viewMode.getMyFailedMessages(chatId)
+            withContext(Dispatchers.Main) {
+                if (messages.isNotEmpty()) {
+                    messages.forEach {
+                        Log.d(TAG, "handleFailedMessages: ${it?.content()}")
                         it?.let { message ->
                             sendMessage(
                                 MessageAck(
-                                    isMe = message.content().isMe,
-                                    status = message.content().status,
+                                    isMe = true,
+                                    status = MessageStatus.MessageStatusSend(),
                                     UID = message.content().uId,
                                     content = message.content().content
                                 )
@@ -230,15 +224,17 @@ class ChatFragment : Fragment() {
 
     private fun handleWriteMessage(mAck: MessageAck) {
         if (mAck.status == MessageStatus.MessageStatusNone()) {
+            Log.d(TAG, "handleWriteMessage: haslkdfjladsf")
             mConversationArrayAdapter!!.add("Me:  ${mAck.content}")
-            insertMessage(mAck.content, chatId, mAck.UID, myDeviceAddress!!, true, -1)
+            insertMessage(mAck.content, chatId, mAck.UID, myDeviceAddress!!,MessageStatus.MessageStatusSend(), true, -1)
         }
     }
 
     private fun handleReadMessage(readMessage: String) {
-        val mAck = readMessage.decode()
+        var mAck = readMessage.decode()
         if (mAck.status == MessageStatus.MessageStatusSeen()) {
             updateMyMessageStatus(mAck)
+            Log.d(TAG, "handleReadMessage: haslkdfjladsf")
         } else {
             Log.d(TAG, "handleReadMessage: $readMessage")
             storeTheirMessage(mAck)
@@ -260,12 +256,13 @@ class ChatFragment : Fragment() {
             uId = mAck.UID,
             senderId = mConnectedDeviceAddress!!,
             isMe = false,
-            fatherId = -1
+            fatherId = -1,
+            status = MessageStatus.MessageStatusSend()
         )
     }
 
     private fun sendAck(message: MessageAck) {
-        message.isMe = false
+        message.isMe = true
         message.status = MessageStatus.MessageStatusSeen()
         sendMessage(message)
     }
@@ -382,6 +379,7 @@ class ChatFragment : Fragment() {
         val device = mBluetoothAdapter!!.getRemoteDevice(address)
         mChatService!!.connect(device, secure)
     }
+
     private fun connectDevice() {
         val device = mBluetoothAdapter!!.getRemoteDevice(chatId)
         mChatService!!.connect(device, true)
@@ -402,6 +400,7 @@ class ChatFragment : Fragment() {
         }
         return false
     }
+
     override fun onStart() {
         super.onStart()
         if (!mBluetoothAdapter!!.isEnabled) {

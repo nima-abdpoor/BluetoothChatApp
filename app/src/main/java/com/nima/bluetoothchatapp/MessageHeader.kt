@@ -20,6 +20,9 @@ fun String.decode(): MessageAck {
                 status = MessageStatus.MessageStatusNone()
             }
             "1" -> {
+                status = MessageStatus.MessageStatusSend()
+            }
+            "2"-> {
                 status = MessageStatus.MessageStatusSeen()
             }
         }
@@ -35,8 +38,8 @@ fun MessageAck.encode(): String {
         if (this.isMe) sb.append("0") else sb.append("1")
         when (this.status) {
             is MessageStatus.MessageStatusNone -> sb.append("0")
-            is MessageStatus.MessageStatusSeen -> sb.append("1")
-            is MessageStatus.MessageStatusSend -> sb.append("0")
+            is MessageStatus.MessageStatusSeen -> sb.append("2")
+            is MessageStatus.MessageStatusSend -> sb.append("1")
         }
         sb.append(this.UID)
         sb.append(this.content)

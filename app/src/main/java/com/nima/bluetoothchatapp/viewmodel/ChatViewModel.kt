@@ -28,7 +28,8 @@ class ChatViewModel @ViewModelInject constructor
         uid: String,
         senderId: String,
         isMe: Boolean,
-        fatherId: Int
+        fatherId: Int,
+        status: MessageStatus
     ) {
         val message = Text(
             content = Content(
@@ -39,7 +40,7 @@ class ChatViewModel @ViewModelInject constructor
                 writeMessage,
                 senderId,
                 isMe,
-                MessageStatus.MessageStatusSend()
+                status
             ),
             father = Father(fatherId),
             child = null
@@ -61,7 +62,7 @@ class ChatViewModel @ViewModelInject constructor
         }
     }
 
-    fun getMyFailedMessages(chatID: String): Flow<List<Message?>>? {
+    fun getMyFailedMessages(chatID: String): List<Message?> {
         return repository.getMyFailedMessages(chatID)
     }
 

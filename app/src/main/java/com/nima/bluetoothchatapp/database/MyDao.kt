@@ -29,8 +29,8 @@ interface MyDao {
     @Query("UPDATE ChatMessage SET status = (:status) WHERE uId = (:uId) AND content = (:message) AND status != (:status)")
     fun updateMyMessageStatus(status : String,uId :String,message  :String)
 
-    @Query("SELECT * FROM ChatMessage WHERE chatId = (:chatID) AND status != '2'")
-    fun getMyFailedMessages(chatID: String) : Flow<List<ChatMessage>>
+    @Query("SELECT * FROM ChatMessage WHERE chatId = (:chatID) AND status != '2' AND isMe = 1")
+    fun getMyFailedMessages(chatID: String) : List<ChatMessage>
     /* ------------------------------------------------------------*/
 
 

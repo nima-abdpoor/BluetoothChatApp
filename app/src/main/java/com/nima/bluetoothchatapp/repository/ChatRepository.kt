@@ -40,8 +40,8 @@ class ChatRepository @Inject constructor(private val myDao: MyDao) {
         myDao.updateMyMessageStatus(state, uId, message)
     }
 
-    fun getMyFailedMessages(chatID: String): Flow<List<Message?>> {
+    fun getMyFailedMessages(chatID: String): List<Message?> {
         val failedMessages = myDao.getMyFailedMessages(chatID)
-        return failedMessages.map { chatMessageMapper.mapFromEntityList(it) }
+        return failedMessages.map { chatMessageMapper.mapFromEntity(it) }
     }
 }
