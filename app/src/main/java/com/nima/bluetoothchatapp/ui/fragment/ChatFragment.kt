@@ -81,14 +81,13 @@ class ChatFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mConversationView = view.findViewById<View>(R.id.`in`) as ListView
+        //mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
         recycler = view.findViewById(R.id.recycler_chatF_items)
         initRecyclerView()
         randomUIDGenerator = RandomUIDGenerator()
         getChatHistory()
-        createFakeData()
     }
 
     private fun createFakeData() {
@@ -109,7 +108,10 @@ class ChatFragment : Fragment() {
             adapter = chatAdapter
         }
     }
-    private fun showMessages(messages  :List<com.nima.bluetoothchatapp.chat.Message>){
+    private fun showMessages(messages  :List<com.nima.bluetoothchatapp.chat.Message?>){
+        if (messages.isEmpty()){
+
+        }
         chatAdapter.submitList(messages)
     }
 
@@ -118,7 +120,7 @@ class ChatFragment : Fragment() {
 
         // Initialize the array adapter for the conversation thread
         mConversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
-        mConversationView!!.adapter = mConversationArrayAdapter
+        //mConversationView!!.adapter = mConversationArrayAdapter
 
         // Initialize the compose field with a listener for the return key
         mOutEditText!!.setOnEditorActionListener(mWriteListener)
@@ -165,6 +167,7 @@ class ChatFragment : Fragment() {
     private fun getChatHistory(){
         CoroutineScope(Dispatchers.Main).launch {
             viewMode.getAllMessages(chatId)?.collect {
+                showMessages(it)
                 withContext(Dispatchers.Main){
                     it.forEach {
                         Log.d(TAG, "getChatHistory: $it")
@@ -201,7 +204,7 @@ class ChatFragment : Fragment() {
 
     private fun handleConnectStatus() {
         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
-        handleFailedMessages()
+        //handleFailedMessages()
     }
 
     private fun handleFailedMessages() {

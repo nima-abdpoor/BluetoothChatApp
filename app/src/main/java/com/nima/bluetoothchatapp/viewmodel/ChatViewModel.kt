@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -65,7 +66,7 @@ class ChatViewModel @ViewModelInject constructor
     }
 
     fun getAllMessages(chatID: String): Flow<List<Message?>>? {
-        return repository.getAllMessages(chatID)
+        return repository.getAllMessages(chatID)?.distinctUntilChanged()
     }
 
 }

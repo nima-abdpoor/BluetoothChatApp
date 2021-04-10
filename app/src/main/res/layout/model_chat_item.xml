@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:minWidth="40dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/chat_message_host"
+        android:background="@drawable/chat_message_guest"
         android:layout_gravity="end"
         >
         <TextView
@@ -26,7 +26,6 @@
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:layout_margin="5dp"
-            android:src="@drawable/ic_status_none"
             android:layout_toEndOf="@id/txt_chatItem_content"
             android:layout_below="@id/txt_chatItem_content"
             />

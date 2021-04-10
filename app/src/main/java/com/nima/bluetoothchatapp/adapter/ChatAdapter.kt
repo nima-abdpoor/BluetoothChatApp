@@ -59,7 +59,7 @@ class ChatAdapter() :
         return differ.currentList.size
     }
 
-    fun submitList(list: List<Message>) {
+    fun submitList(list: List<Message?>) {
         differ.submitList(list)
     }
 
@@ -79,17 +79,18 @@ class ChatAdapter() :
                 if (isMe) {
                     (relativeLayout.layoutParams as FrameLayout.LayoutParams).gravity = Gravity.END
                     relativeLayout.background = ResourcesCompat.getDrawable(resources,R.drawable.chat_message_host,null)
+                    when(status){
+                        is MessageStatus.MessageStatusNone -> {state.setImageResource(R.drawable.ic_status_none)}
+                        is MessageStatus.MessageStatusSend -> {state.setImageResource(R.drawable.ic_status_sent)}
+                        is MessageStatus.MessageStatusSeen -> {state.setImageResource(R.drawable.ic_status_seen)}
+                    }
                 }
                 else{
                     (relativeLayout.layoutParams as FrameLayout.LayoutParams).gravity = Gravity.START
                     relativeLayout.background = ResourcesCompat.getDrawable(resources,R.drawable.chat_message_guest,null)
+                    state.visibility = View.INVISIBLE
                 }
                 message.text = content
-                when(status){
-                    is MessageStatus.MessageStatusNone -> {state.setImageResource(R.drawable.ic_status_none)}
-                    is MessageStatus.MessageStatusSend -> {state.setImageResource(R.drawable.ic_status_sent)}
-                    is MessageStatus.MessageStatusSeen -> {state.setImageResource(R.drawable.ic_status_seen)}
-                }
             }
         }
     }
