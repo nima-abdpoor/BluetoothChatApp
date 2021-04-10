@@ -93,7 +93,11 @@ class ChatFragment : Fragment() {
 
     private fun createFakeData() {
         val m = listOf<com.nima.bluetoothchatapp.chat.Message>(
-            Text(Content(0,"","12:32","","salam","",true,MessageStatus.MessageStatusNone()), Father(0),null)
+            Text(Content(0,"","12:32","","salam","",true,MessageStatus.MessageStatusNone()), Father(0),null),
+            Text(Content(0,"","12:32","","salaksjfdlam","",false,MessageStatus.MessageStatusNone()), Father(0),null),
+            Text(Content(0,"","12:32","","saaslkdfjlsdjflaskjflsaflam","",false,MessageStatus.MessageStatusNone()), Father(0),null),
+            Text(Content(0,"","12:32","",".","",true,MessageStatus.MessageStatusNone()), Father(0),null),
+            Text(Content(0,"","12:32","","سلام","",false,MessageStatus.MessageStatusNone()), Father(0),null)
         )
         showMessages(m)
     }

@@ -1,8 +1,13 @@
 package com.nima.bluetoothchatapp.adapter
 
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -61,9 +66,22 @@ class ChatAdapter() :
         private val pos: Int
     ) : RecyclerView.ViewHolder(itemView) {
 
-
+        private lateinit var relativeLayout : RelativeLayout
+        private lateinit var message : TextView
         fun bind(item: Message) = with(itemView) {
-
+            relativeLayout =findViewById(R.id.rl_chatItem_layout)
+            message  =findViewById(R.id.txt_chatItem_content)
+            item.content().apply {
+                if (isMe) {
+                    (relativeLayout.layoutParams as FrameLayout.LayoutParams).gravity = Gravity.END
+                    relativeLayout.background = ResourcesCompat.getDrawable(resources,R.drawable.chat_message_host,null)
+                }
+                else{
+                    (relativeLayout.layoutParams as FrameLayout.LayoutParams).gravity = Gravity.START
+                    relativeLayout.background = ResourcesCompat.getDrawable(resources,R.drawable.chat_message_guest,null)
+                }
+                message.text = content
+            }
         }
     }
 }

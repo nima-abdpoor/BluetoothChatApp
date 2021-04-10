@@ -4,15 +4,16 @@
     android:layout_height="wrap_content">
 
     <RelativeLayout
-        android:id="@+id/rl_chatItem_model"
+        android:id="@+id/rl_chatItem_layout"
         android:layout_margin="5dp"
         android:layout_width="wrap_content"
         android:minWidth="40dp"
         android:layout_height="wrap_content"
         android:background="@drawable/chat_message_host"
-        android:layout_gravity="end"
+        android:layout_gravity="start"
         >
         <TextView
+            android:id="@+id/txt_chatItem_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
