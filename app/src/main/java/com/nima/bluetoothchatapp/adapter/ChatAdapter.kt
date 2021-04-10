@@ -32,7 +32,7 @@ class ChatAdapter() :
         this.parent = parent
         return ChatViewHolder(
             LayoutInflater.from(parent.context).inflate(
-                R.layout.model_chat_list,
+                R.layout.model_chat_item,
                 parent,
                 false
             ),

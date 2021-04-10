@@ -5,6 +5,7 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.*
+import android.os.Message
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -13,10 +14,11 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.nima.bluetoothchatapp.*
 import com.nima.bluetoothchatapp.adapter.ChatAdapter
-import com.nima.bluetoothchatapp.chat.MessageAck
-import com.nima.bluetoothchatapp.chat.MessageStatus
+import com.nima.bluetoothchatapp.chat.*
 import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,6 +51,7 @@ class ChatFragment : Fragment() {
     private var mOutStringBuffer: StringBuffer? = null
     private var mBluetoothAdapter: BluetoothAdapter? = null
     private var mChatService: BluetoothChatService? = null
+    private lateinit var recycler: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,9 +84,29 @@ class ChatFragment : Fragment() {
         mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
-        init
+        recycler = view.findViewById(R.id.recycler_chatF_items)
+        initRecyclerView()
         randomUIDGenerator = RandomUIDGenerator()
         getChatHistory()
+        createFakeData()
+    }
+
+    private fun createFakeData() {
+        val m = listOf<com.nima.bluetoothchatapp.chat.Message>(
+            Text(Content(0,"","12:32","","salam","",true,MessageStatus.MessageStatusNone()), Father(0),null)
+        )
+        showMessages(m)
+    }
+
+    private fun initRecyclerView() {
+        recycler.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            chatAdapter = ChatAdapter()
+            adapter = chatAdapter
+        }
+    }
+    private fun showMessages(messages  :List<com.nima.bluetoothchatapp.chat.Message>){
+        chatAdapter.submitList(messages)
     }
 
     private fun setupChat() {
