@@ -439,6 +439,13 @@ class ChatFragment : Fragment() {
         }
     }
 
+    override fun onDestroyOptionsMenu() {
+        super.onDestroyOptionsMenu()
+        if (mChatService != null) {
+            mChatService!!.stop()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (mChatService != null) {
