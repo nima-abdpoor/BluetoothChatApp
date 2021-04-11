@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.*
 import android.os.Message
+import android.os.health.UidHealthStats
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -34,6 +35,7 @@ class ChatFragment : Fragment() {
     private var mConversationView: ListView? = null
     private var mOutEditText: EditText? = null
     private var mSendButton: Button? = null
+    private lateinit var connectionState : Button
     private var chatId = "-1"
     private lateinit var chatAdapter: ChatAdapter
 
@@ -80,15 +82,29 @@ class ChatFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        //mConversationView = view.findViewById<View>(R.id.`in`) as ListView
-        mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
+        mOutEditText = view.findViewById<View>(R.id.edt_chatF_message) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
+        connectionState = view.findViewById(R.id.btn_chatF_connectionState) as Button
+        subscribeOnButtons()
         recycler = view.findViewById(R.id.recycler_chatF_items)
         initRecyclerView()
         randomUIDGenerator = RandomUIDGenerator()
         getChatHistory()
     }
 
+    private fun subscribeOnButtons() {
+        connectionState.setOnClickListener {
+            connectDevice()
+            it.visibility = View.GONE
+        }
+    }
+    private fun changeStatus(state : String){
+        connectionState.apply {
+            Log.d(TAG, "changeStatus: $state")
+            text = state
+            visibility = View.VISIBLE
+        }
+    }
 
     private fun initRecyclerView() {
         recycler.apply {
@@ -103,6 +119,7 @@ class ChatFragment : Fragment() {
 
         }
         chatAdapter.submitList(messages)
+        recycler.smoothScrollToPosition(messages.size)
     }
 
     private fun setupChat() {
@@ -115,11 +132,10 @@ class ChatFragment : Fragment() {
         // Initialize the compose field with a listener for the return key
         mOutEditText!!.setOnEditorActionListener(mWriteListener)
 
-        // Initialize the send button with a listener that for click events
-        mSendButton!!.setOnClickListener { // Send a message using content of the edit text widget
+        mSendButton!!.setOnClickListener {
             val view: View? = view
             if (null != view) {
-                val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
+                val textView = view.findViewById<View>(R.id.edt_chatF_message) as TextView
                 val message = textView.text.toString()
                 val m = MessageAck(
                     true,
@@ -181,11 +197,18 @@ class ChatFragment : Fragment() {
 
     private fun sendMessage(message: MessageAck) {
         if (mChatService!!.state != BluetoothChatService.STATE_CONNECTED) {
-            Toast.makeText(activity, R.string.not_connected, Toast.LENGTH_SHORT).show()
+            message.apply {
+                if (content.isNotEmpty()){
+                    insertMessage(content,chatId,UID,chatId,status,true,-1)
+                    mOutEditText?.setText("")
+                }
+            }
             return
         }
-        val m = message.content
-        if (m.isNotEmpty()) {
+        writeMessage(message)
+    }
+    private fun writeMessage(message : MessageAck){
+        if (message.content.isNotEmpty()) {
             Log.d(TAG, "sendMessagealdkfsj: ${message.encode()}")
             val send = message.encode().toByteArray()
             mChatService!!.write(send)
@@ -195,6 +218,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun handleConnectStatus() {
+        connectionState.visibility = View.GONE
         setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
         handleFailedMessages()
     }
@@ -311,10 +335,14 @@ class ChatFragment : Fragment() {
                     BluetoothChatService.STATE_CONNECTED -> {
                         handleConnectStatus()
                     }
-                    BluetoothChatService.STATE_CONNECTING -> setStatus(R.string.title_connecting)
-                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> setStatus(
-                        R.string.title_not_connected
-                    )
+                    BluetoothChatService.STATE_CONNECTING -> {
+                        setStatus(R.string.title_connecting)
+                        changeStatus(resources.getString(R.string.title_connecting))
+                    }
+                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> {
+                        setStatus(R.string.title_not_connected)
+                        changeStatus(resources.getString(R.string.title_not_connected))
+                    }
                 }
                 Constants.MESSAGE_WRITE -> {
                     val writeBuf = msg.obj as ByteArray
@@ -366,7 +394,7 @@ class ChatFragment : Fragment() {
                     // User did not enable Bluetooth or an error occurred
                     Log.d(TAG, "BT not enabled")
                     Toast.makeText(
-                        activity, R.string.bt_not_enabled_leaving,
+                        requireContext(), R.string.bt_not_enabled_leaving,
                         Toast.LENGTH_SHORT
                     ).show()
                     activity?.finish()
@@ -385,22 +413,6 @@ class ChatFragment : Fragment() {
         mChatService!!.connect(device, true)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.chat_fragment_menu, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.connect_scan -> {
-//                val serverIntent = Intent(activity, DeviceListActivity::class.java)
-//                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE)
-                connectDevice()
-                return true
-            }
-        }
-        return false
-    }
-
     override fun onStart() {
         super.onStart()
         if (!mBluetoothAdapter!!.isEnabled) {
@@ -413,6 +425,13 @@ class ChatFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (mChatService != null) {
+            mChatService!!.stop()
+        }
+    }
+
+    override fun onDestroyOptionsMenu() {
+        super.onDestroyOptionsMenu()
         if (mChatService != null) {
             mChatService!!.stop()
         }

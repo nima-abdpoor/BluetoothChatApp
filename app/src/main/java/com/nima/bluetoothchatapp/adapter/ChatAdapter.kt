@@ -24,11 +24,11 @@ class ChatAdapter() :
     val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Message>() {
 
         override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
-            return oldItem == newItem
+            return oldItem.content() == newItem.content()
         }
 
         override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
-            return oldItem.content().id == newItem.content().id
+            return (oldItem.content().id == newItem.content().id)
         }
 
     }
@@ -77,6 +77,7 @@ class ChatAdapter() :
             state  =findViewById(R.id.img_chatItem_status)
             item.content().apply {
                 if (isMe) {
+                    state.visibility = View.VISIBLE
                     (relativeLayout.layoutParams as FrameLayout.LayoutParams).gravity = Gravity.END
                     relativeLayout.background = ResourcesCompat.getDrawable(resources,R.drawable.chat_message_host,null)
                     when(status){

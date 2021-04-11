@@ -3,54 +3,83 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical">
+    xmlns:tools="http://schemas.android.com/tools">
+    <Button
+        android:id="@+id/btn_chatF_connectionState"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:text="@string/title_not_connected"
+        android:background="@drawable/button_rounded"
+        android:fontFamily="sans-serif-condensed-medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="15dp"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="visible"
+        />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/bottom_sheet"
+    <FrameLayout
+        android:id="@+id/frm_chatF_chatItems"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/lnr_chatF_layout"
-        app:layout_constraintTop_toTopOf="parent">
+        >
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_chatF_items"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            app:behavior_hideable="true"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_chatF_items"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/purple_200"
-                tools:listitem="@layout/model_chat_item" />
-        </androidx.core.widget.NestedScrollView>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            android:layout_height="match_parent"
+            android:background="@color/purple_200"
+            tools:listitem="@layout/model_chat_item" />
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/lnr_chatF_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="70dp"
-        app:layout_constraintTop_toBottomOf="@+id/bottom_sheet"
+        android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frm_chatF_chatItems"
         >
-
         <EditText
-            android:id="@+id/edit_text_out"
+            android:id="@+id/edt_chatF_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/button_send"
+            android:layout_gravity="center"
+            android:textDirection="rtl"
+            android:layout_weight="8"
+            android:layout_margin="3dp"
+            android:background="@drawable/bg_meessage"
+            android:maxLines="6"
+            android:padding="7dp"
+            android:textSize="16sp" />
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/send" />
+            android:layout_margin="1dp"
+            android:background="@drawable/ic_circular_image"
+            >
+
+            <Button
+                android:id="@+id/button_send"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:background="@drawable/ic_baseline_send_24"
+                android:text="@string/send" />
+
+        </FrameLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

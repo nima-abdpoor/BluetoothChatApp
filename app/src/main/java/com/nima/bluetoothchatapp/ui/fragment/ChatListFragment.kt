@@ -1,7 +1,9 @@
 package com.nima.bluetoothchatapp.ui.fragment
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -31,6 +33,7 @@ class ChatListFragment : Fragment(R.layout.fragment_chat_list), PairedDevicesDia
     private lateinit var recycler: RecyclerView
     private val viewMode: ChatListViewModel by viewModels()
     private var blDevices: List<BLDevice?>? = null
+    private val REQUEST_ENABLE_BT = 3
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -82,13 +85,22 @@ class ChatListFragment : Fragment(R.layout.fragment_chat_list), PairedDevicesDia
 
     private fun subscribeOnButtons() {
         pairedDevices.setOnClickListener {
-            val blDevices = queryPairedDevices()
-            blDevices?.let {
-                val pairedDevicesDialogFragment = PairedDevicesDialogFragment(this, it)
-                pairedDevicesDialogFragment.show(childFragmentManager, "FromMainActivityToPaired")
+            if (bluetoothAdapter?.isEnabled == false) {
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
             }
+            else showPairedDevices()
         }
     }
+
+    private fun showPairedDevices() {
+        val blDevices = queryPairedDevices()
+        blDevices?.let {
+            val pairedDevicesDialogFragment = PairedDevicesDialogFragment(this, it)
+            pairedDevicesDialogFragment.show(childFragmentManager, "FromMainActivityToPaired")
+        }
+    }
+
 
     private fun insertDevice(item: BLDevice) {
         blDevices?.let {
@@ -109,6 +121,21 @@ class ChatListFragment : Fragment(R.layout.fragment_chat_list), PairedDevicesDia
         bundle.putString(Constants.DEVICE_ADDRESS, item.deviceAddress)
         bundle.putString(Constants.DEVICE_NAME, item.deviceName)
         findNavController().navigate(R.id.action_chatListFragment_to_chatFragment, bundle)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when(requestCode){
+            REQUEST_ENABLE_BT ->{
+                if (resultCode == Activity.RESULT_OK) showPairedDevices() else {
+                    Toast.makeText(
+                        requireContext(), R.string.bt_not_enabled_leaving,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    activity?.finish()
+                }
+            }
+        }
     }
 
     override fun pairedDeviceSelected(position: Int, item: BLDevice) {
