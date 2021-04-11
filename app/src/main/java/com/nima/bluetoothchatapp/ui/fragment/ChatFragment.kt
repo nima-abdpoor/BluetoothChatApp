@@ -413,22 +413,6 @@ class ChatFragment : Fragment() {
         mChatService!!.connect(device, true)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.chat_fragment_menu, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.connect_scan -> {
-//                val serverIntent = Intent(activity, DeviceListActivity::class.java)
-//                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE)
-                connectDevice()
-                return true
-            }
-        }
-        return false
-    }
-
     override fun onStart() {
         super.onStart()
         if (!mBluetoothAdapter!!.isEnabled) {
