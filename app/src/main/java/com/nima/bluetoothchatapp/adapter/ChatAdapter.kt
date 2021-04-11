@@ -77,6 +77,7 @@ class ChatAdapter() :
             state  =findViewById(R.id.img_chatItem_status)
             item.content().apply {
                 if (isMe) {
+                    state.visibility = View.VISIBLE
                     (relativeLayout.layoutParams as FrameLayout.LayoutParams).gravity = Gravity.END
                     relativeLayout.background = ResourcesCompat.getDrawable(resources,R.drawable.chat_message_host,null)
                     when(status){
