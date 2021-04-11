@@ -120,6 +120,7 @@ class ChatFragment : Fragment() {
 
         }
         chatAdapter.submitList(messages)
+        recycler.smoothScrollToPosition(messages.size)
     }
 
     private fun setupChat() {
