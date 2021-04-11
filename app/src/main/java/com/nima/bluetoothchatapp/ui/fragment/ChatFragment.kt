@@ -82,7 +82,6 @@ class ChatFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        //mConversationView = view.findViewById<View>(R.id.`in`) as ListView
         mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
         connectionState = view.findViewById(R.id.btn_chatF_connectionState) as Button
@@ -133,8 +132,7 @@ class ChatFragment : Fragment() {
         // Initialize the compose field with a listener for the return key
         mOutEditText!!.setOnEditorActionListener(mWriteListener)
 
-        // Initialize the send button with a listener that for click events
-        mSendButton!!.setOnClickListener { // Send a message using content of the edit text widget
+        mSendButton!!.setOnClickListener {
             val view: View? = view
             if (null != view) {
                 val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
@@ -202,6 +200,7 @@ class ChatFragment : Fragment() {
             message.apply {
                 if (content.isNotEmpty()){
                     insertMessage(content,chatId,UID,chatId,status,true,-1)
+                    mOutEditText?.setText("")
                 }
             }
             return

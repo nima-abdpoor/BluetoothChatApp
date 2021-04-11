@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical">
+    xmlns:tools="http://schemas.android.com/tools">
     <Button
         android:id="@+id/btn_chatF_connectionState"
         android:layout_width="wrap_content"
@@ -23,29 +22,33 @@
         android:visibility="visible"
         />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <FrameLayout
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/lnr_chatF_layout"
-        app:layout_constraintTop_toTopOf="parent">
+        >
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_chatF_items"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/purple_200"
-                tools:listitem="@layout/model_chat_item" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_chatF_items"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/purple_200"
+            tools:listitem="@layout/model_chat_item" />
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/lnr_chatF_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="70dp"
-        app:layout_constraintTop_toBottomOf="@+id/bottom_sheet"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_sheet"
         >
 
         <EditText

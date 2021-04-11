@@ -12,7 +12,7 @@
         android:layout_height="match_parent">
 
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/bottom_sheet"
+            android:id="@+id/lnr_chatF_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/white"
