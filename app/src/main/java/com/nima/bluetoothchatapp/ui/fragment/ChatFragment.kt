@@ -394,7 +394,7 @@ class ChatFragment : Fragment() {
                     // User did not enable Bluetooth or an error occurred
                     Log.d(TAG, "BT not enabled")
                     Toast.makeText(
-                        activity, R.string.bt_not_enabled_leaving,
+                        requireContext(), R.string.bt_not_enabled_leaving,
                         Toast.LENGTH_SHORT
                     ).show()
                     activity?.finish()
