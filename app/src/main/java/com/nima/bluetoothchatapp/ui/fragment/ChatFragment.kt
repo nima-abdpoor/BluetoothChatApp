@@ -82,7 +82,7 @@ class ChatFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
+        mOutEditText = view.findViewById<View>(R.id.edt_chatF_message) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
         connectionState = view.findViewById(R.id.btn_chatF_connectionState) as Button
         subscribeOnButtons()
@@ -135,7 +135,7 @@ class ChatFragment : Fragment() {
         mSendButton!!.setOnClickListener {
             val view: View? = view
             if (null != view) {
-                val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
+                val textView = view.findViewById<View>(R.id.edt_chatF_message) as TextView
                 val message = textView.text.toString()
                 val m = MessageAck(
                     true,
