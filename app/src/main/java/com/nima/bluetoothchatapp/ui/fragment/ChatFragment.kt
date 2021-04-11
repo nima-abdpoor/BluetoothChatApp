@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.*
 import android.os.Message
-import android.os.health.UidHealthStats
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -78,7 +77,7 @@ class ChatFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_bluetooth_chat, container, false)
+        return inflater.inflate(R.layout.fragment_chat, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

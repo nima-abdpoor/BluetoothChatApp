@@ -1,5 +1,6 @@
 package com.nima.bluetoothchatapp.adapter
 
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.nima.bluetoothchatapp.R
 import com.nima.bluetoothchatapp.chat.Message
 import com.nima.bluetoothchatapp.chat.MessageStatus
+import com.nima.bluetoothchatapp.toDateAndTime
+import com.nima.bluetoothchatapp.toTime
 
 class ChatAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -71,10 +74,12 @@ class ChatAdapter() :
         private lateinit var relativeLayout : RelativeLayout
         private lateinit var message : TextView
         private lateinit var state : ImageView
+        private lateinit var datAndTime : TextView
         fun bind(item: Message) = with(itemView) {
             relativeLayout =findViewById(R.id.rl_chatItem_layout)
             message  =findViewById(R.id.txt_chatItem_content)
             state  =findViewById(R.id.img_chatItem_status)
+            datAndTime  =findViewById(R.id.txt_chatItem_time)
             item.content().apply {
                 if (isMe) {
                     state.visibility = View.VISIBLE
@@ -89,9 +94,10 @@ class ChatAdapter() :
                 else{
                     (relativeLayout.layoutParams as FrameLayout.LayoutParams).gravity = Gravity.START
                     relativeLayout.background = ResourcesCompat.getDrawable(resources,R.drawable.chat_message_guest,null)
-                    state.visibility = View.INVISIBLE
+                    state.visibility = View.GONE
                 }
                 message.text = content
+                datAndTime.text = time.toTime()
             }
         }
     }
