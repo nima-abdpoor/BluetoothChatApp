@@ -82,7 +82,7 @@ class ChatFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mOutEditText = view.findViewById<View>(R.id.edit_text_out) as EditText
+        mOutEditText = view.findViewById<View>(R.id.edt_chatF_message) as EditText
         mSendButton = view.findViewById<View>(R.id.button_send) as Button
         connectionState = view.findViewById(R.id.btn_chatF_connectionState) as Button
         subscribeOnButtons()
@@ -135,7 +135,7 @@ class ChatFragment : Fragment() {
         mSendButton!!.setOnClickListener {
             val view: View? = view
             if (null != view) {
-                val textView = view.findViewById<View>(R.id.edit_text_out) as TextView
+                val textView = view.findViewById<View>(R.id.edt_chatF_message) as TextView
                 val message = textView.text.toString()
                 val m = MessageAck(
                     true,
@@ -411,22 +411,6 @@ class ChatFragment : Fragment() {
     private fun connectDevice() {
         val device = mBluetoothAdapter!!.getRemoteDevice(chatId)
         mChatService!!.connect(device, true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.chat_fragment_menu, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.connect_scan -> {
-//                val serverIntent = Intent(activity, DeviceListActivity::class.java)
-//                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE)
-                connectDevice()
-                return true
-            }
-        }
-        return false
     }
 
     override fun onStart() {
