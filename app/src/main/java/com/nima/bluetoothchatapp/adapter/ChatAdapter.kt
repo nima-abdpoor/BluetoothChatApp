@@ -1,6 +1,5 @@
 package com.nima.bluetoothchatapp.adapter
 
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.nima.bluetoothchatapp.R
 import com.nima.bluetoothchatapp.chat.Message
 import com.nima.bluetoothchatapp.chat.MessageStatus
-import com.nima.bluetoothchatapp.toDateAndTime
 import com.nima.bluetoothchatapp.toTime
 
 class ChatAdapter() :
