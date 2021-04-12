@@ -19,3 +19,7 @@ the Message class is an interface that holds all kinds of messages, so each mess
 3.each message has sent has extra data: 1-a random integer between 1000 and 9999 that should make each message unique(UID) 2- an integer that shows the status( 0 is none, 1 is sent and 2 is seen) 3- an 0 or 1 that shows isMe or not.
 the status of the first message that has been sent is called SENT, the receiver gets it and decodes, store and send it back with status SEEN.
 an application that gets a message should check the status of the message firstly if the status is SEEN so it's my own message that gets back and should update database and UI and if the status is SENT the application should save it in the database and change the status and get it back.
+
+### UI
+4.get all messages from the database with all status and show theme in ChatFragment.kt.I handled this process with Flow instead of LiveData.
+store devices that users want to connect and show them on the first page(ChatListFragement.kt).
