@@ -296,17 +296,12 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            REQUEST_CONNECT_DEVICE_SECURE ->                 // When DeviceListActivity returns with a device to connect
+            REQUEST_CONNECT_DEVICE_SECURE ->
                 if (resultCode == Activity.RESULT_OK) {
-                    data?.let { connectDevice(it, true) }
+                    data?.let { connectDevice() }
                 }
-            REQUEST_CONNECT_DEVICE_INSECURE ->                 // When DeviceListActivity returns with a device to connect
+            REQUEST_ENABLE_BT ->
                 if (resultCode == Activity.RESULT_OK) {
-                    data?.let { connectDevice(it, false) }
-                }
-            REQUEST_ENABLE_BT ->                 // When the request to enable Bluetooth returns
-                if (resultCode == Activity.RESULT_OK) {
-                    // Bluetooth is now enabled, so set up a chat session
                     setupChat()
                 } else {
                     // User did not enable Bluetooth or an error occurred
@@ -320,15 +315,10 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         }
     }
 
-    private fun connectDevice(data: Intent, secure: Boolean) {
-        val address = data.extras?.getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS)
-        val device = mBluetoothAdapter!!.getRemoteDevice(address)
-        mChatService!!.connect(device, secure)
-    }
 
     private fun connectDevice() {
         val device = mBluetoothAdapter!!.getRemoteDevice(chatId)
-        mChatService!!.connect(device, true)
+        mChatService?.connect(device, true)
     }
 
     override fun onStart() {
@@ -343,9 +333,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (mChatService != null) {
-            mChatService!!.stop()
-        }
+        mChatService?.stop()
     }
 
     override fun onResume() {
@@ -359,9 +347,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (mChatService != null) {
-            mChatService!!.stop()
-        }
+        mChatService?.stop()
     }
 
     companion object {
@@ -369,7 +355,6 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
         // Intent request codes
         private const val REQUEST_CONNECT_DEVICE_SECURE = 1
-        private const val REQUEST_CONNECT_DEVICE_INSECURE = 2
         private const val REQUEST_ENABLE_BT = 3
     }
 }

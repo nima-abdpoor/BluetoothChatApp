@@ -17,7 +17,7 @@ import com.nima.bluetoothchatapp.chat.Message
 import com.nima.bluetoothchatapp.chat.MessageStatus
 import com.nima.bluetoothchatapp.toTime
 
-class ChatAdapter() :
+class ChatAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var parent : ViewGroup
