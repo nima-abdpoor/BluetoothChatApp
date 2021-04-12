@@ -52,7 +52,7 @@ class ChatViewModel @ViewModelInject constructor
 
     private fun getTimeCurrent(): String {
         val currentDateTime = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd G 'at' h:mm a");
         return dateFormat.format(currentDateTime.time).toString()
     }
 

@@ -1,17 +1,18 @@
 package com.nima.bluetoothchatapp.ui.fragment
 
-import android.app.ActionBar
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.*
-import android.os.Message
-import android.os.health.UidHealthStats
 import android.util.Log
-import android.view.*
-import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
@@ -19,7 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.nima.bluetoothchatapp.*
 import com.nima.bluetoothchatapp.adapter.ChatAdapter
-import com.nima.bluetoothchatapp.chat.*
+import com.nima.bluetoothchatapp.chat.MessageAck
+import com.nima.bluetoothchatapp.chat.MessageStatus
 import com.nima.bluetoothchatapp.service.BluetoothChatService
 import com.nima.bluetoothchatapp.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,37 +32,51 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
-class ChatFragment : Fragment() {
+class ChatFragment : Fragment(R.layout.fragment_chat) {
     // Layout Views
-    private var mConversationView: ListView? = null
-    private var mOutEditText: EditText? = null
-    private var mSendButton: Button? = null
+    private lateinit var mOutEditText: EditText
+    private lateinit var mSendButton: Button
     private lateinit var connectionState : Button
-    private var chatId = "-1"
+    private lateinit var recycler: RecyclerView
+    private lateinit var noMessages: TextView
+
     private lateinit var chatAdapter: ChatAdapter
 
     private lateinit var randomUIDGenerator: RandomUIDGenerator
-    private val viewMode: ChatViewModel by viewModels()
 
+    private val viewMode: ChatViewModel by viewModels()
 
     private var mConnectedDeviceName: String? = null
     private var mConnectedDeviceAddress: String? = null
     private var myDeviceAddress: String? = null
 
 
-    private var mConversationArrayAdapter: ArrayAdapter<String>? = null
+    private var chatId = "-1"
     private var mOutStringBuffer: StringBuffer? = null
     private var mBluetoothAdapter: BluetoothAdapter? = null
     private var mChatService: BluetoothChatService? = null
-    private lateinit var recycler: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-        // Get local Bluetooth adapter
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        checkForBluetoothAdapter()
         chatId = requireArguments().getString(Constants.DEVICE_ADDRESS, "") ?: "-1"
-        // If the adapter is null, then Bluetooth is not supported
+        randomUIDGenerator = RandomUIDGenerator()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        mOutEditText = view.findViewById(R.id.edt_chatF_message)
+        mSendButton = view.findViewById(R.id.button_send)
+        connectionState = view.findViewById(R.id.btn_chatF_connectionState) as Button
+        recycler = view.findViewById(R.id.recycler_chatF_items)
+        noMessages = view.findViewById(R.id.txt_chatF_noMessage)
+        initRecyclerView()
+        subscribeOnButtons()
+        subscribeOnChatMessages()
+    }
+
+    @SuppressLint("HardwareIds")
+    private fun checkForBluetoothAdapter() {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (mBluetoothAdapter == null) {
             val activity: FragmentActivity = requireActivity()
             Toast.makeText(activity, "Bluetooth is not available", Toast.LENGTH_LONG).show()
@@ -72,40 +88,6 @@ class ChatFragment : Fragment() {
         }
     }
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_bluetooth_chat, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mOutEditText = view.findViewById<View>(R.id.edt_chatF_message) as EditText
-        mSendButton = view.findViewById<View>(R.id.button_send) as Button
-        connectionState = view.findViewById(R.id.btn_chatF_connectionState) as Button
-        subscribeOnButtons()
-        recycler = view.findViewById(R.id.recycler_chatF_items)
-        initRecyclerView()
-        randomUIDGenerator = RandomUIDGenerator()
-        getChatHistory()
-    }
-
-    private fun subscribeOnButtons() {
-        connectionState.setOnClickListener {
-            connectDevice()
-            it.visibility = View.GONE
-        }
-    }
-    private fun changeStatus(state : String){
-        connectionState.apply {
-            Log.d(TAG, "changeStatus: $state")
-            text = state
-            visibility = View.VISIBLE
-        }
-    }
-
     private fun initRecyclerView() {
         recycler.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -114,25 +96,48 @@ class ChatFragment : Fragment() {
         }
     }
 
-    private fun showMessages(messages: List<com.nima.bluetoothchatapp.chat.Message?>) {
-        if (messages.isEmpty()) {
-
+    private fun subscribeOnButtons() {
+        connectionState.setOnClickListener {
+            connectDevice()
+            it.visibility = View.GONE
         }
-        chatAdapter.submitList(messages)
-        recycler.smoothScrollToPosition(messages.size)
+    }
+
+    private fun subscribeOnChatMessages() {
+        CoroutineScope(Dispatchers.Main).launch {
+            viewMode.getAllMessages(chatId)?.collect { messages ->
+                showMessages(messages)
+                withContext(Dispatchers.Main) {
+                    messages.forEach {
+                        Log.d(TAG, "getChatHistory: $it")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun changeStatus(state : String){
+        connectionState.apply {
+            text = state
+            visibility = View.VISIBLE
+        }
+    }
+
+    private fun showMessages(messages: List<com.nima.bluetoothchatapp.chat.Message?>) {
+        if(messages.isNotEmpty()){
+            showEmptyMessageView(false)
+            chatAdapter.submitList(messages)
+            recycler.smoothScrollToPosition(messages.size)
+        }
+        else if (messages.isEmpty()) showEmptyMessageView(true)
+    }
+    private fun showEmptyMessageView(show :Boolean){
+        noMessages.isVisible = show
+        recycler.isVisible = !show
     }
 
     private fun setupChat() {
-        Log.d(TAG, "setupChat()")
-
-        // Initialize the array adapter for the conversation thread
-        mConversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
-        //mConversationView!!.adapter = mConversationArrayAdapter
-
-        // Initialize the compose field with a listener for the return key
-        mOutEditText!!.setOnEditorActionListener(mWriteListener)
-
-        mSendButton!!.setOnClickListener {
+        mSendButton.setOnClickListener {
             val view: View? = view
             if (null != view) {
                 val textView = view.findViewById<View>(R.id.edt_chatF_message) as TextView
@@ -144,43 +149,10 @@ class ChatFragment : Fragment() {
                     message
                 )
                 sendMessage(m)
-                //insertMessage(message, chatId, m.UID, myDeviceAddress!!, true, -1)
             }
         }
-
-        // Initialize the BluetoothChatService to perform bluetooth connections
-        mChatService = BluetoothChatService(
-            activity,
-            mHandler
-        )
-
-        // Initialize the buffer for outgoing messages
+        mChatService = BluetoothChatService(requireContext(), mHandler)
         mOutStringBuffer = StringBuffer("")
-    }
-
-    /**
-     * Makes this device discoverable for 300 seconds (5 minutes).
-     */
-//    private fun ensureDiscoverable() {
-//        if (mBluetoothAdapter!!.scanMode !=
-//            BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE
-//        ) {
-//            val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
-//            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
-//            startActivity(discoverableIntent)
-//        }
-//    }
-    private fun getChatHistory() {
-        CoroutineScope(Dispatchers.Main).launch {
-            viewMode.getAllMessages(chatId)?.collect {
-                showMessages(it)
-                withContext(Dispatchers.Main) {
-                    it.forEach {
-                        Log.d(TAG, "getChatHistory: $it")
-                    }
-                }
-            }
-        }
     }
 
     private fun insertMessage(
@@ -200,7 +172,7 @@ class ChatFragment : Fragment() {
             message.apply {
                 if (content.isNotEmpty()){
                     insertMessage(content,chatId,UID,chatId,status,true,-1)
-                    mOutEditText?.setText("")
+                    mOutEditText.setText("")
                 }
             }
             return
@@ -209,17 +181,15 @@ class ChatFragment : Fragment() {
     }
     private fun writeMessage(message : MessageAck){
         if (message.content.isNotEmpty()) {
-            Log.d(TAG, "sendMessagealdkfsj: ${message.encode()}")
             val send = message.encode().toByteArray()
             mChatService!!.write(send)
             mOutStringBuffer!!.setLength(0)
-            mOutEditText!!.setText(mOutStringBuffer)
+            mOutEditText.setText(mOutStringBuffer)
         }
     }
 
     private fun handleConnectStatus() {
         connectionState.visibility = View.GONE
-        setStatus(getString(R.string.title_connected_to, mConnectedDeviceName))
         handleFailedMessages()
     }
 
@@ -248,14 +218,12 @@ class ChatFragment : Fragment() {
 
     private fun handleWriteMessage(mAck: MessageAck) {
         if (mAck.status == MessageStatus.MessageStatusNone()) {
-            Log.d(TAG, "handleWriteMessage: haslkdfjladsf")
-            mConversationArrayAdapter!!.add("Me:  ${mAck.content}")
             insertMessage(mAck.content, chatId, mAck.UID, myDeviceAddress!!,MessageStatus.MessageStatusSend(), true, -1)
         }
     }
 
     private fun handleReadMessage(readMessage: String) {
-        var mAck = readMessage.decode()
+        val mAck = readMessage.decode()
         if (mAck.status == MessageStatus.MessageStatusSeen()) {
             updateMyMessageStatus(mAck)
             Log.d(TAG, "handleReadMessage: haslkdfjladsf")
@@ -263,7 +231,6 @@ class ChatFragment : Fragment() {
             Log.d(TAG, "handleReadMessage: $readMessage")
             storeTheirMessage(mAck)
             sendAck(mAck)
-            mConversationArrayAdapter!!.add("$mConnectedDeviceName:  ${mAck.content}")
         }
     }
 
@@ -291,80 +258,31 @@ class ChatFragment : Fragment() {
         sendMessage(message)
     }
 
-    /**
-     * The action listener for the EditText widget, to listen for the return key
-     */
-    private val mWriteListener =
-        TextView.OnEditorActionListener { view, actionId, event -> // If the action is a key-up event on the return key, send the message
-            if (actionId == EditorInfo.IME_NULL && event.action == KeyEvent.ACTION_UP) {
-                //val message = view.text.toString()
-                //sendMessage(message)
-            }
-            true
-        }
-
-    /**
-     * Updates the status on the action bar.
-     *
-     * @param resId a string resource ID
-     */
-    private fun setStatus(resId: Int) {
-        val activity: FragmentActivity = activity ?: return
-        val actionBar: ActionBar = activity.actionBar ?: return
-        actionBar.setSubtitle(resId)
-    }
-
-    /**
-     * Updates the status on the action bar.
-     *
-     * @param subTitle status
-     */
-    private fun setStatus(subTitle: CharSequence) {
-        val activity: FragmentActivity = activity ?: return
-        val actionBar: ActionBar = activity.actionBar ?: return
-        actionBar.subtitle = subTitle
-    }
-
-    /**
-     * The Handler that gets information back from the BluetoothChatService
-     */
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 Constants.MESSAGE_STATE_CHANGE -> when (msg.arg1) {
-                    BluetoothChatService.STATE_CONNECTED -> {
-                        handleConnectStatus()
-                    }
-                    BluetoothChatService.STATE_CONNECTING -> {
-                        setStatus(R.string.title_connecting)
-                        changeStatus(resources.getString(R.string.title_connecting))
-                    }
-                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> {
-                        setStatus(R.string.title_not_connected)
-                        changeStatus(resources.getString(R.string.title_not_connected))
-                    }
+                    BluetoothChatService.STATE_CONNECTED -> handleConnectStatus()
+                    BluetoothChatService.STATE_CONNECTING -> changeStatus(resources.getString(R.string.title_connecting))
+                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> changeStatus(resources.getString(R.string.title_not_connected))
                 }
                 Constants.MESSAGE_WRITE -> {
                     val writeBuf = msg.obj as ByteArray
-                    // construct a string from the buffer
                     val writeMessage = String(writeBuf)
                     val message = writeMessage.decode()
                     handleWriteMessage(message)
                 }
                 Constants.MESSAGE_READ -> {
                     val readBuf = msg.obj as ByteArray
-                    // construct a string from the valid bytes in the buffer
                     val readMessage = String(readBuf, 0, msg.arg1)
                     handleReadMessage(readMessage)
                 }
                 Constants.MESSAGE_DEVICE_NAME -> {
-                    // save the connected device's name
                     mConnectedDeviceName = msg.data.getString(Constants.DEVICE_NAME)
                     mConnectedDeviceAddress = msg.data.getString(Constants.DEVICE_ADDRESS)
                     chatId = mConnectedDeviceAddress ?: "-1"
-                    Toast.makeText(
-                        requireContext(), "Connected to "
-                                + mConnectedDeviceName, Toast.LENGTH_SHORT
+                    Toast.makeText(requireContext(), "Connected to "
+                            + mConnectedDeviceName, Toast.LENGTH_SHORT
                     ).show()
                 }
                 Constants.MESSAGE_TOAST -> Toast.makeText(

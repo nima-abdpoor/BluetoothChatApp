@@ -32,12 +32,27 @@
         app:layout_constraintBottom_toTopOf="@id/lnr_chatF_layout"
         >
 
+        <TextView
+            android:id="@+id/txt_chatF_noMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:layout_marginHorizontal="20dp"
+            android:text="@string/send_your_first_message"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:visibility="gone"
+            />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_chatF_items"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/purple_200"
-            tools:listitem="@layout/model_chat_item" />
+            tools:listitem="@layout/model_chat_item"
+            android:visibility="visible"
+            />
     </FrameLayout>
 
     <LinearLayout
