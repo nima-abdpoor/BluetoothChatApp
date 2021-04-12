@@ -66,7 +66,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mOutEditText = view.findViewById(R.id.edt_chatF_message)
         mSendButton = view.findViewById(R.id.button_send)
-        connectionState = view.findViewById(R.id.btn_chatF_connectionState) as Button
+        connectionState = view.findViewById(R.id.btn_chatF_connectionState)
         recycler = view.findViewById(R.id.recycler_chatF_items)
         noMessages = view.findViewById(R.id.txt_chatF_noMessage)
         initRecyclerView()
@@ -348,19 +348,19 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         }
     }
 
-    override fun onDestroyOptionsMenu() {
-        super.onDestroyOptionsMenu()
-        if (mChatService != null) {
-            mChatService!!.stop()
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         if (mChatService != null) {
             if (mChatService!!.state == BluetoothChatService.STATE_NONE) {
                 mChatService!!.start()
             }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (mChatService != null) {
+            mChatService!!.stop()
         }
     }
 
